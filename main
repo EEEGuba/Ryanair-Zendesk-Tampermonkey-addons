@@ -21,6 +21,7 @@
 //if this lags delete the lines up to...
 
 function repeat(){
+getAllBlockquotes()
 setTimeout(()=>{repeat()},2000)}
 
 //...here
