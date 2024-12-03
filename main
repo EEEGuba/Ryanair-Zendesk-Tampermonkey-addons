@@ -16,4 +16,10 @@
 
       element.hidden=true
   }}}
-     for (var i = 1; i < 31; i++) {setTimeout(()=>{getAllBlockquotes()},i*1000)}
+     for (var i = 1; i < 31; i++) {setTimeout(()=>{getAllBlockquotes()},i*500)}
+
+
+function repeat(){
+setTimeout(()=>{repeat()},2000)}
+
+//if this lags ^^^^ delete the line above
