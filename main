@@ -1,0 +1,18 @@
+// ==UserScript==
+// @name         client respond append fix by Grzegorz Ptaszynski
+// @namespace    http://tampermonkey.net/
+// @match        https://ryanairsupport.zendesk.com/agent/tickets/*
+// @grant        none
+// @description
+// ==/UserScript==
+
+ function getAllBlockquotes() {
+        const blockquotes = document.getElementsByTagName("blockquote");
+        const num = blockquotes.length;
+     for (var i = 0; i < blockquotes.length; i++) {
+  var element = blockquotes[i];
+  if (element) {
+
+      element.hidden=true
+  }}}
+     for (var i = 1; i < 31; i++) {setTimeout(()=>{getAllBlockquotes()},i*1000)}
