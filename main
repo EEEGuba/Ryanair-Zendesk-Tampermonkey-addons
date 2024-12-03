@@ -4,6 +4,7 @@
 // @match        https://ryanairsupport.zendesk.com/agent/tickets/*
 // @grant        none
 // @description
+// @author Grzegorz Ptaszynski
 // ==/UserScript==
 
  function getAllBlockquotes() {
