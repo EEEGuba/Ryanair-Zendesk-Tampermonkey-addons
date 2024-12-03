@@ -1,8 +1,10 @@
 to use script 
 
-click on raw or copy directly from what you see
+click on main above this
 
-go into your tampermonkey extension
+click raw and copy text or copy directly from the file you see
+
+go into your tampermonkey extension for your browser
 
 paste the code and save
 
