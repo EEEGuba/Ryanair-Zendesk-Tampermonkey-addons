@@ -1,6 +1,6 @@
 to use script 
 
-click on main above this
+click on main above this (not the drop down menu)
 
 click raw and copy text or copy directly from the file you see
 
