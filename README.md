@@ -11,3 +11,5 @@ paste the code and save
 enable developer mode for extensions in the store/settings, on edge you can go to edge://extensions/ and enable developer mode from there
 
 it should work from then on, if not, contact me through my work email
+
+alt+n does the removing
