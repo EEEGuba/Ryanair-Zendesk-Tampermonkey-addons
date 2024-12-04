@@ -6,22 +6,41 @@
 // @description
 // @author Grzegorz Ptaszynski
 // ==/UserScript==
-
+var count = 0
  function getAllBlockquotes() {
         const blockquotes = document.getElementsByTagName("blockquote");
         const num = blockquotes.length;
+count += num
      for (var i = 0; i < blockquotes.length; i++) {
   var element = blockquotes[i];
   if (element) {
 
       element.hidden=true
   }}}
-     for (var i = 1; i < 31; i++) {setTimeout(()=>{getAllBlockquotes()},i*500)}
+//in this house we test in prod
+ function getAllResponseTables() {
+        const tables = document.getElementsByTagName("tr");
+        const num = tables.length;
+     count += num
+     for (var i = 0; i < tables.length; i++) {
+  var element = tables[i];
+  if (element) {
 
-//if this lags delete the lines up to...
+      element.hidden=true
+  }}}
+    // for (var i = 1; i < 31; i++) {setTimeout(()=>{getAllBlockquotes();getAllResponseTables()},i*500)}
 
-function repeat(){
-getAllBlockquotes()
-setTimeout(()=>{repeat()},2000)}
-
+//if this lags delete the lines down to...
+    function handleKeyPress(event) {
+        if (event.altKey && event.key === 'n') {
+            getAllBlockquotes()
+            getAllResponseTables()
+            alert(`removed ${count} of annoying objects`);
+            count = 0
+        }
+    }
+    document.addEventListener('keydown', handleKeyPress);
+    window.addEventListener('beforeunload', function() {
+        document.removeEventListener('keydown', handleKeyPress);
+    });
 //...here
