@@ -4,7 +4,7 @@ click on main above this (not the drop down menu)
 
 click raw and copy text or copy directly from the file you see
 
-go into your tampermonkey extension for your browser
+go into your tampermonkey extension (if you do not have it yet, install it in the browsers extension store) for your browser, and create a new script
 
 paste the code and save
 
