@@ -1,6 +1,8 @@
-to use script 
+to use scripts: 
 
-click on main above this (not the drop down menu)
+Select and go into the folder named after the script you want to use
+
+click on the script version you want
 
 click raw and copy text or copy directly from the file you see
 
@@ -11,5 +13,3 @@ paste the code and save
 enable developer mode for extensions in the store/settings, on edge you can go to edge://extensions/ and enable developer mode from there
 
 it should work from then on, if not, contact me through my work email
-
-alt+n does the removing
