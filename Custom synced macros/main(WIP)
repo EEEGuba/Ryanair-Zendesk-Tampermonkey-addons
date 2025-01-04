@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Zendesk custom macros by Grzegorz Ptaszynski
+// @name         Zendesk custom macros by Grzegorz Ptaszynski original
 // @namespace    http://tampermonkey.net/
 // @version      2024-12-28
 // @description  macro helper to ease the pasting of templates
@@ -7,9 +7,63 @@
 // @match        https://ryanairsupport.zendesk.com/agent/*
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        GM_openInTab
+// @grant        GM_deleteValue
+// @grant        GM_getValue
+// @grant        window.close
 // @grant        GM_addStyle
+// @match        https://app.smartsheet.com/sheets/V9qmvXM8rj3CFJ3XwV8f5Qr6JMfcQHQCq3QP2qr1?view=grid
+// @grant        GM_log
+// @grant        GM_setValue
+// @grant        GM_listValues
+
 // ==/UserScript==
-let contentArray = ['Whilst we sympathise with your view, we regret our position as set out in the previous letter remains unaltered,\n\nWe regret that we cannot be of further assistance with regards to this matter.\n\nYours sincerely,','Whilst we have noted your continued dissatisfaction, we regret that our position remains unaltered, as per our previous correspondence.\n\nWe trust the above explains our position regarding your claim.\n\nYours sincerely,','content3','content4','content5','content6','content7','content8','content9','content10','content11']
+
+if(window.location.href=="https://app.smartsheet.com/sheets/V9qmvXM8rj3CFJ3XwV8f5Qr6JMfcQHQCq3QP2qr1?view=grid"){
+    (function(){
+    'use strict';
+
+    // Save original open method
+    const originalOpen = XMLHttpRequest.prototype.open;
+
+    // Override the open method
+    XMLHttpRequest.prototype.open = function(method, url, async, user, pass) {
+        const self = this;
+
+        // Check if the URL matches the file you want to intercept
+        if (url.includes('home?formName=ajax&formAction=fa_loadSheet&ss_v=381.0.0')){// || url.includes('home?formName=ajax&formAction=fa_loadSheet&ss_v=381.0.0')) {  // Replace with actual part of the URL
+            // Listen for when the request completes
+            this.addEventListener('load', function() {
+                if (self.status === 200) {
+                    const fileContent = self.responseText; // Get response as text (assuming it's a text file)
+                    GM_setValue("titleArray",fileContent);
+                    GM_setValue('titleArray',fileContent)
+                    window.close()
+
+                }
+            });
+        }
+
+        // Call the original open method
+        originalOpen.call(this, method, url, async, user, pass);
+    };
+})();
+}
+else{
+let titleArray = undefined
+let contentArray = undefined
+function DataInsertStart(){
+
+    GM_openInTab("https://app.smartsheet.com/sheets/V9qmvXM8rj3CFJ3XwV8f5Qr6JMfcQHQCq3QP2qr1?view=grid",{loadInBackground:true,insert:true });
+    setTimeout(()=>{//GM_deleteValue("titleArray")
+    titleArray = GM_getValue('titleArray', undefined)
+    //contentArray = GM_getValue("contentArray", undefined)
+
+       console.log(titleArray)},5000)
+    console.log(9999)
+
+}
+    DataInsertStart()
+
 let isPromptBoxActive = false
     GM_addStyle(`
         #custom-prompt-input {
@@ -22,7 +76,7 @@ function onEditableClick(text) {
 //    createMessageBox("pick the macro you want, it will be ready to paste when you click it",10000)
     // Trigger the custom prompt with predefined options
     if(!isPromptBoxActive){
-    showDatalistPrompt('Please select macro:', ['second reply', 'third reply', 'test3','test4', 'test5', 'test6','test7', 'test8', 'test9','test10', 'test11']);
+    showDatalistPrompt('Please select macro:',titleArray);
     }
         //WORKS // GM_openInTab("https://www.youtube.com/")
     //let currentActiveElement = document.activeElement
@@ -264,3 +318,4 @@ addEventListener('keyup',function(e){
 debugger; }
 });
 document.addEventListener('mouseup', contenteditableCheck);
+}
