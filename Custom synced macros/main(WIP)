@@ -1,1 +1,266 @@
+// ==UserScript==
+// @name         Zendesk custom macros by Grzegorz Ptaszynski
+// @namespace    http://tampermonkey.net/
+// @version      2024-12-28
+// @description  macro helper to ease the pasting of templates
+// @author       Grzegorz Ptaszynski
+// @match        https://ryanairsupport.zendesk.com/agent/*
+// @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
+// @grant        GM_openInTab
+// @grant        GM_addStyle
+// ==/UserScript==
+let contentArray = ['Whilst we sympathise with your view, we regret our position as set out in the previous letter remains unaltered,\n\nWe regret that we cannot be of further assistance with regards to this matter.\n\nYours sincerely,','Whilst we have noted your continued dissatisfaction, we regret that our position remains unaltered, as per our previous correspondence.\n\nWe trust the above explains our position regarding your claim.\n\nYours sincerely,','content3','content4','content5','content6','content7','content8','content9','content10','content11']
+let isPromptBoxActive = false
+    GM_addStyle(`
+        #custom-prompt-input {
+            width: 300px;
+            padding: 8px;
+            font-size: 16px;
+        }
+    `)
+function onEditableClick(text) {
+//    createMessageBox("pick the macro you want, it will be ready to paste when you click it",10000)
+    // Trigger the custom prompt with predefined options
+    if(!isPromptBoxActive){
+    showDatalistPrompt('Please select macro:', ['second reply', 'third reply', 'test3','test4', 'test5', 'test6','test7', 'test8', 'test9','test10', 'test11']);
+    }
+        //WORKS // GM_openInTab("https://www.youtube.com/")
+    //let currentActiveElement = document.activeElement
+    //currentActiveElement.innerHTML = "eebydeeby"
 
+   // setReactInputValue(currentActiveElement,"test1")
+}
+//bruh, literally nothing works, god dammit, it just resets my shiz after every input attempt
+//function setReactInputValue(el, value) {
+//    // Store the last value to update React's internal tracker
+//    const last = el.value;
+  //  // Use the native value setter to change the input's value
+   // const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+  //      window.HTMLInputElement.prototype,
+  //      'value'
+  //  ).set;
+  //  nativeInputValueSetter.call(el, value);
+  //  // Update React's internal value tracker
+  //  const event = new Event('input', { bubbles: true });
+  //  const tracker = el._valueTracker;
+  //  if (tracker) {
+  //      tracker.setValue(last);
+  //  }
+    // Dispatch the input event to notify React of the change
+ //   el.dispatchEvent(event);
+//}
+
+//GM_openInTab("https://www.example.com/");
+
+//GM_setClipboard("This is the clipboard text.", "text", () => console.log("Clipboard set!"));
+//await GM.setClipboard("This is the newer clipboard text.", "text");
+//console.log('Clipboard set again!');
+
+//GM_getTabs((tabs) => {
+//    for (const [tabId, tab] of Object.entries(tabs)) {
+//        console.log(`tab ${tabId}`, tab);
+//    }
+//});
+    // Function to replace the prompt with a datalist
+    function showDatalistPrompt(message, options) {
+        //let promptTimeout = setTimeout(() => {alert('a')}, 2000);
+        isPromptBoxActive = true
+        function fadeLoop(){
+            if(isContentEditable()){
+           // clearTimeout(promptTimeout);
+         //   promptTimeout
+            }
+        setTimeout(()=>{fadeLoop()},200)
+        }
+        const promptContainer = document.createElement('div');
+        promptContainer.style.position = 'fixed';
+        promptContainer.style.top = '20px';
+        promptContainer.style.left = '80%';
+        promptContainer.style.transform = 'translateX(-50%)';
+        promptContainer.style.backgroundColor = '#4CAF50';
+        promptContainer.style.padding = '10px 20px';
+        promptContainer.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+        promptContainer.style.zIndex = '9999';
+                promptContainer.style.color = 'white';
+
+        // Create a prompt message element
+        const messageElement = document.createElement('p');
+        messageElement.textContent = message;
+        promptContainer.appendChild(messageElement);
+
+        // Create a datalist
+        const datalist = document.createElement('datalist');
+        datalist.id = 'prompt-datalist';
+
+        // Add options to the datalist
+        options.forEach(option => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option;
+            datalist.appendChild(optionElement);
+        });
+        document.body.appendChild(datalist);
+
+        // Create an input field linked to the datalist
+        const inputElement = document.createElement('input');
+        inputElement.setAttribute('list', 'prompt-datalist');
+        inputElement.setAttribute('placeholder', 'Select an option');
+        promptContainer.appendChild(inputElement);
+
+        // Add the prompt container to the body
+        document.body.appendChild(promptContainer);
+
+        // Create a confirm button
+        const confirmButton = document.createElement('button');
+        confirmButton.textContent = 'Copy to Clipboard';
+        confirmButton.style.marginTop = '10px';
+        confirmButton.style.padding = '10px';
+        confirmButton.onclick = function() {
+            isPromptBoxActive = false
+            const userInput = inputElement.value;
+            if (options.includes(userInput)) {
+                navigator.clipboard.writeText((contentArray[options.indexOf(`${userInput}`)]));
+                createMessageBox(`Copied ${userInput}!`,5000)
+            } else {
+                createMessageBox('Copying nothing, like you wanted!',3000);
+            }
+            document.body.removeChild(promptContainer);
+            document.body.removeChild(datalist);
+        };
+        promptContainer.appendChild(confirmButton);
+    }
+
+;
+
+//const tabs = await GM.getTabs();
+function setTextInParagraph(text) {
+  // Get the currently focused element (active element)
+  const activeElement = document.activeElement;
+
+  // Find the first <p> element inside the activeElement
+  const pElement = activeElement.querySelector("p");
+
+  // If a <p> element is found, set its text content
+  if (pElement) {
+      console.log("POW")
+    pElement.textContent = text; // Sets the text of the <p> element
+  } else {
+    console.log("No <p> element found inside the active element.");
+  }
+}
+function isContentEditable() {
+  // Get the currently focused element
+  const activeElement = document.activeElement;
+  // Check if the active element is a div and if it has the contenteditable attribute set to true
+  if (activeElement && activeElement.tagName === "DIV") {
+    return activeElement.getAttribute("contenteditable") === "true";
+  }
+  return false;
+}
+function contenteditableCheck(){
+if (isContentEditable()) {
+  console.log("This div is editable.");
+
+    onEditableClick("test Text %^[}/")
+} else {
+  console.log("This div is not editable.");
+}}
+
+
+var debugCount = 0
+function refresh(){
+         setTimeout(() => {
+       debugCount=0//console.log(`it has been ${debugCount} seconds since start of program`);refresh();debugCount+=5
+        }, 5000);}
+refresh()//this makes the script not randomly stop working...somehow
+    function createMessageBox(message,time) {
+        const messageBox = document.createElement('div');
+        messageBox.innerHTML = message;
+        messageBox.style.position = 'fixed';
+        messageBox.style.top = '150px';
+        messageBox.style.left = '50%';
+        messageBox.style.transform = 'translateX(-50%)';
+        messageBox.style.backgroundColor = '#4CAF50';
+        messageBox.style.color = 'white';
+        messageBox.style.padding = '10px 20px';
+        messageBox.style.borderRadius = '5px';
+        messageBox.style.fontSize = '16px';
+        messageBox.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+        messageBox.style.zIndex = '9999';
+        messageBox.style.display = 'none';
+
+        document.body.appendChild(messageBox);
+
+        setTimeout(() => {
+            messageBox.style.display = 'block';
+        }, 100);
+        setTimeout(() => {
+         messageBox.remove();
+        }, time);
+    }
+    // Shows the custom message
+    function showMessage(message) {
+        createMessageBox(message,3000);
+    }
+//cooldown so the prompt doesnt pop up 200 times a second
+let selectionCooldown = false
+//sets up prompt box
+ function createPromptBox(message,time,id) {
+     if(!selectionCooldown){
+         selectionCooldown = true
+        const promptBox = document.createElement('div');
+        promptBox.id = id;
+        const element = document.getElementById(id);
+        promptBox.innerHTML = message;
+        promptBox.style.position = 'fixed';
+        promptBox.style.top = '20px';
+        promptBox.style.left = '90%';
+        promptBox.style.transform = 'translateX(-50%)';
+        promptBox.style.backgroundColor = '#0050b2';
+        promptBox.style.color = 'white';
+        promptBox.style.padding = '10px 20px';
+        promptBox.style.borderRadius = '5px';
+        promptBox.style.fontSize = '16px';
+        promptBox.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+        promptBox.style.zIndex = '9999';
+        promptBox.style.display = 'none';
+
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.marginTop = '20px';
+
+    const yesButton = document.createElement('button');
+         promptBox.style.cssFloat = 'left';
+    yesButton.innerText = 'Yes';
+    yesButton.style.marginRight = '10px';
+    yesButton.addEventListener('click', () => {
+         promptBox.remove();
+
+    });
+    const noButton = document.createElement('button');
+         promptBox.style.cssFloat = 'right';
+    noButton.innerText = 'No';
+    noButton.addEventListener('click', () => {
+         promptBox.remove();
+        createMessageBox("ok, I'll go away now",2000)
+    });
+    buttonContainer.appendChild(yesButton);
+    buttonContainer.appendChild(noButton);
+
+    promptBox.appendChild(buttonContainer);
+
+        document.body.appendChild(promptBox);
+
+        setTimeout(() => {
+            promptBox.style.display = 'block';
+        }, 100);
+        setTimeout(() => {
+         promptBox.remove();
+        }, time);
+        setTimeout(() => {
+            selectionCooldown=false;
+        }, 10000);
+ }}
+addEventListener('keyup',function(e){
+    if (e.keyCode === 79) {
+debugger; }
+});
+document.addEventListener('mouseup', contenteditableCheck);
