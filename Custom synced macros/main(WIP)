@@ -30,15 +30,14 @@ if(window.location.href=="https://app.smartsheet.com/sheets/V9qmvXM8rj3CFJ3XwV8f
         const self = this;
 
         // Check if the URL matches the file you want to intercept
-        if (url.includes('home?formName=ajax&formAction=fa_loadSheet&ss_v=381.0.0')){// || url.includes('home?formName=ajax&formAction=fa_loadSheet&ss_v=381.0.0')) {  // Replace with actual part of the URL
+        if (url.includes('home?formName=ajax&formAction=fa_loadSheet&ss_v=')){// || url.includes('home?formName=ajax&formAction=fa_loadSheet&ss_v=381.0.0')) {  // Replace with actual part of the URL
             // Listen for when the request completes
             this.addEventListener('load', function() {
                 if (self.status === 200) {
                     const fileContent = self.responseText; // Get response as text (assuming it's a text file)
-                    GM_setValue("titleArray",fileContent);
-                    GM_setValue('titleArray',fileContent)
+                    GM_setValue("sheetData",fileContent);
+                    //console.log(fileContent)
                     window.close()
-
                 }
             });
         }
@@ -49,21 +48,37 @@ if(window.location.href=="https://app.smartsheet.com/sheets/V9qmvXM8rj3CFJ3XwV8f
 })();
 }
 else{
-let titleArray = undefined
-let contentArray = undefined
+let sheetData = undefined
+let titleArray = [];
+let contentArray = [];
 function DataInsertStart(){
-
+    titleArray = []
+    contentArray=[]
     GM_openInTab("https://app.smartsheet.com/sheets/V9qmvXM8rj3CFJ3XwV8f5Qr6JMfcQHQCq3QP2qr1?view=grid",{loadInBackground:true,insert:true });
-    setTimeout(()=>{//GM_deleteValue("titleArray")
-    titleArray = GM_getValue('titleArray', undefined)
-    //contentArray = GM_getValue("contentArray", undefined)
-
-       console.log(titleArray)},5000)
-    console.log(9999)
-
+    setTimeout(()=>{sheetData = GM_getValue('sheetData', undefined);
+    //console.log(sheetData)
+    const matches = Array.from(sheetData.matchAll(/(?<=\')(?!\,)[A-Z, .0-9\\%£$€\[\]]+(?=\')/gi));
+    const words = matches.map(match => match[0]);
+    //console.log()
+    const filteredWords = words.filter((x)=>x!="DO NOT CHANGE column titles or this column")
+    filteredWords.pop()
+    filteredWords.splice(0,23)
+        //console.log(filteredWords)
+for (let i = 0; i < filteredWords.length; i++) {
+    if (filteredWords[i] === "TITLE COLUMN") {
+        titleArray.push(filteredWords[i + 1]); // The next element is the one we want
+    }
 }
-    DataInsertStart()
+for (let i = 0; i < filteredWords.length; i++) {
+    if (filteredWords[i] === "CONTENT COLUMN") {
+        contentArray.push(filteredWords[i + 1]); // The next element is the one we want
+    }
+}
+        //almostTitleArray.filter((x)=>x!=undefined)
+    console.log(titleArray,contentArray)},5000)
+}
 
+DataInsertStart();
 let isPromptBoxActive = false
     GM_addStyle(`
         #custom-prompt-input {
@@ -72,10 +87,12 @@ let isPromptBoxActive = false
             font-size: 16px;
         }
     `)
-function onEditableClick(text) {
+function onEditableClick() {
 //    createMessageBox("pick the macro you want, it will be ready to paste when you click it",10000)
     // Trigger the custom prompt with predefined options
+    //console.log(isPromptBoxActive)
     if(!isPromptBoxActive){
+        //console.log(789)
     showDatalistPrompt('Please select macro:',titleArray);
     }
         //WORKS // GM_openInTab("https://www.youtube.com/")
@@ -115,17 +132,33 @@ function onEditableClick(text) {
 //        console.log(`tab ${tabId}`, tab);
 //    }
 //});
-    // Function to replace the prompt with a datalist
+
+let articles = [];
+
+// Usage example with async/await to get the value
+async function getResult() {
+    try {
+        const result = await articleYoink(); // Wait for the result from articleYoink
+        return result; // Return the result when it's ready
+    } catch (error) {
+        console.error(error); // Handle any errors (though in this case, it's unlikely)
+    }
+}
+let recentConvoDate = undefined
+// Calling the function and returning the value from the async function
+getResult().then(result => {
+    recentConvoDate = result
+});
     function showDatalistPrompt(message, options) {
         //let promptTimeout = setTimeout(() => {alert('a')}, 2000);
         isPromptBoxActive = true
-        function fadeLoop(){
-            if(isContentEditable()){
+       // function fadeLoop(){
+        //    if(isContentEditable()){
            // clearTimeout(promptTimeout);
          //   promptTimeout
-            }
-        setTimeout(()=>{fadeLoop()},200)
-        }
+        //    }
+       // setTimeout(()=>{fadeLoop()},200)
+       // }
         const promptContainer = document.createElement('div');
         promptContainer.style.position = 'fixed';
         promptContainer.style.top = '20px';
@@ -170,9 +203,20 @@ function onEditableClick(text) {
         confirmButton.style.padding = '10px';
         confirmButton.onclick = function() {
             isPromptBoxActive = false
-            const userInput = inputElement.value;
+           const userInput = inputElement.value
+    .replace(/%5cn/g, "\n") // Use a global regular expression to replace all occurrences of '%5cn' with a newline
+    .replace(/\[RECENTDATE\]/g, recentConvoDate.toString());
             if (options.includes(userInput)) {
-                navigator.clipboard.writeText((contentArray[options.indexOf(`${userInput}`)]));
+                decode((contentArray[options.indexOf(`${userInput}`)])).then(result => {
+    navigator.clipboard.writeText(result).then(() => {
+        console.log("Text copied to clipboard!"); // Confirmation that text was copied
+    }).catch(err => {
+        console.error("Error copying to clipboard: ", err); // Error handling
+    });
+}).catch(error => {
+    console.error("Error decoding string: ", error); // Error handling for decode
+});
+//                navigator.clipboard.writeText((contentArray[options.indexOf(`${userInput}`)]));
                 createMessageBox(`Copied ${userInput}!`,5000)
             } else {
                 createMessageBox('Copying nothing, like you wanted!',3000);
@@ -195,10 +239,8 @@ function setTextInParagraph(text) {
 
   // If a <p> element is found, set its text content
   if (pElement) {
-      console.log("POW")
+
     pElement.textContent = text; // Sets the text of the <p> element
-  } else {
-    console.log("No <p> element found inside the active element.");
   }
 }
 function isContentEditable() {
@@ -212,12 +254,13 @@ function isContentEditable() {
 }
 function contenteditableCheck(){
 if (isContentEditable()) {
-  console.log("This div is editable.");
+  //console.log("This div is editable.");
 
-    onEditableClick("test Text %^[}/")
+    onEditableClick()
 } else {
-  console.log("This div is not editable.");
+  //console.log("This div is not editable.");
 }}
+
 
 
 var debugCount = 0
@@ -313,9 +356,98 @@ let selectionCooldown = false
             selectionCooldown=false;
         }, 10000);
  }}
-addEventListener('keyup',function(e){
-    if (e.keyCode === 79) {
-debugger; }
-});
 document.addEventListener('mouseup', contenteditableCheck);
+// Function to extract the recent conversation date from the articles
+async function articleYoink() {
+    return new Promise((resolve, reject) => {
+        function checkArticles() {
+            if (articles.length < 1) {
+                articles = document.querySelectorAll('article');
+                setTimeout(checkArticles, 200); // Retry after 1 second
+            } else {
+                const date = recentConversationDate();
+                recentConvoDate = date; // Set the date
+                if (recentConvoDate) {
+                    resolve(recentConvoDate); // Resolve with the date
+                } else {
+                    reject("No recent conversation date found");
+                }
+            }
+        }
+
+        checkArticles(); // Start checking for articles
+    });
+}
+
+// Function to extract the recent date
+function recentConversationDate() {
+    const articlesWithEndUserType = Array.from(articles).filter(article => {
+        return article.querySelector('div[type="end-user"]') !== null;
+    });
+
+    const dates = articlesWithEndUserType.map(article => {
+        const timeElement = article.querySelector('time');
+        return timeElement ? timeElement.getAttribute('datetime') : null;
+    });
+
+    if (dates.length === 0) {
+        return undefined; // Return undef if no date
+    }
+
+    const recentDate = dates.pop();
+    const correctTimeFormat = recentDate ? recentDate.slice(0, 10).split("-", 3).reverse().join("/") : null;
+    return correctTimeFormat;
+}
+
+// Function to replace [RECENTDATE] in a string with the actual date
+async function processString(inputString) {
+    // Wait for the recentConvoDate to be set
+    await articleYoink();
+
+    // Ensure recentConvoDate is available
+    if (recentConvoDate) {
+        // Decode URL-encoded characters and replace [RECENTDATE] with the date
+        let decodedString = inputString.replace(/%5cn/g, "\n");
+
+        // Replace [RECENTDATE] with the actual date
+        let finalString = decodedString.replace(/\[RECENTDATE\]/g, recentConvoDate);
+
+        // Return the final string with replacements
+        return finalString;
+    } else {
+        // Return a message if recentConvoDate is not available yet
+        return "recentConvoDate is not available yet.";
+    }
+}
+
+// Example usage: calling the function with a string
+async function decode(inputString) {
+    const result = await processString(inputString); // Get the result
+    return(result); // Log or use the result
+}
+
+    // Function to handle URL change
+   async function handleUrlChange() {
+    const result = await getResult();
+    console.log(result);
+    }
+
+    // Initial URL check
+    handleUrlChange();
+
+    // Listen for URL changes using popstate event
+    window.addEventListener('popstate', handleUrlChange);
+
+    // Also listen for pushState or replaceState method calls to detect changes in single-page apps
+    const originalPushState = history.pushState;
+    history.pushState = function() {
+        originalPushState.apply(this, arguments);
+        handleUrlChange(); // Handle URL change
+    };
+
+    const originalReplaceState = history.replaceState;
+    history.replaceState = function() {
+        originalReplaceState.apply(this, arguments);
+        handleUrlChange(); // Handle URL change
+    };
 }
