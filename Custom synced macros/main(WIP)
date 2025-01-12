@@ -204,23 +204,25 @@ if (
     const inputElement = document.createElement("input")
     inputElement.setAttribute("list", "prompt-datalist")
     inputElement.setAttribute("placeholder", "Select an option")
-    inputElement.style.fontSize = '20px'; // Adjust text size
-    inputElement.style.padding = '5px';// Add padding
-    inputElement.style.height = '30px'; // Set height
-    inputElement.style.width = '200px';
+    inputElement.style.fontSize = "20px" // Adjust text size
+    inputElement.style.padding = "5px" // Add padding
+    inputElement.style.height = "30px" // Set height
+    inputElement.style.width = "200px"
     promptContainer.appendChild(inputElement)
     //inputElement.onchange(function(){if(inputElement.value!=undefined||inputElement.value!=null||inputElement.value!=""){console.log(inputElement.value)}})
     // Add the prompt container to the body
     document.body.appendChild(promptContainer)
-inputElement.addEventListener('input', select);
+    inputElement.addEventListener("input", select)
     // Create a confirm button
     const confirmButton = document.createElement("button")
     confirmButton.textContent = "Copy nothing and close"
     confirmButton.style.marginTop = "5px"
     confirmButton.style.padding = "5px"
-    confirmButton.onclick = function(){select()}
+    confirmButton.onclick = function () {
+      select()
+    }
 
-        function select() {
+    function select() {
       isPromptBoxActive = false
       const userInput = inputElement.value
         .replace(/%5cn/g, "\n") // Use a global regular expression to replace all occurrences of '%5cn' with a newline
@@ -322,7 +324,7 @@ inputElement.addEventListener('input', select);
   document.addEventListener("mouseup", contenteditableCheck)
   // Function to extract the recent conversation date from the articles
   async function articleYoink() {
-      //recentConvoDate = undefined
+    //recentConvoDate = undefined
     return new Promise((resolve, reject) => {
       function checkArticles() {
         if (articles.length < 1) {
@@ -345,12 +347,51 @@ inputElement.addEventListener('input', select);
 
   // Function to extract the recent date
   function recentConversationDate() {
+    // Assuming 'article' is the variable you're working with
+    function checkIfNested(article) {
+      // Ensure article is valid
+      if (!article) {
+        console.error("The article element is undefined or null.")
+        return false
+      }
+
+      // Loop through the parents of the article
+      let currentElement = article
+      let nestCount = 0
+
+      // We keep moving up until there are no more parents (currentElement becomes null)
+      while (currentElement && currentElement.parentNode) {
+        currentElement = currentElement.parentNode
+        nestCount++
+
+        // Make sure currentElement exists and is valid
+        if (currentElement.className === "ember-view workspace") {
+          //console.log("check")
+          // Check if the style attribute is empty
+          if (currentElement.getAttribute("style") === "") {
+            //if (nestCount === 20) {
+            console.log("Found parent")
+            return true
+            //}
+          }
+        }
+      }
+
+      console.log("No matching parent found")
+      return false
+    }
     const articlesWithEndUserType = Array.from(articles).filter((article) => {
-        const innerHTML = Array.from(article.querySelectorAll('span'));
-        console.log(innerHTML[0].textContent)
-      return (article.querySelector('div[type="end-user"]') !== null && document.querySelector('[data-test-id="tooltip-requester-name"]').textContent===innerHTML[0].textContent)
+      const innerHTML = Array.from(article.querySelectorAll("span"))
+
+      return (
+        article.querySelector('div[type="end-user"]') !== null &&
+        document.querySelector('[data-test-id="tooltip-requester-name"]')
+          .textContent === innerHTML[0].textContent &&
+        checkIfNested(article)
+      )
     })
 
+    //console.log(articlesWithEndUserType)
     const dates = articlesWithEndUserType.map((article) => {
       const timeElement = article.querySelector("time")
       return timeElement ? timeElement.getAttribute("datetime") : null
@@ -359,11 +400,11 @@ inputElement.addEventListener('input', select);
     if (dates.length === 0) {
       return undefined // Return undef if no date
     }
-
+console.log(dates)
     const recentDate = dates.pop()
     const correctTimeFormat = recentDate
       ? recentDate.slice(0, 10).split("-", 3).reverse().join("/")
-      : null
+      : undefined
     return correctTimeFormat
   }
 
@@ -399,19 +440,24 @@ inputElement.addEventListener('input', select);
 
   // Function to handle URL change
   function handleUrlChange() {
-      //const articles = document.querySelectorAll("article")
-      dateRefresh()
-      //articles.forEach((element)=>{element.remove()})
-      function dateRefresh(){
-      console.log("im alive")
-      setTimeout(()=>{
-
-    getResult().then((result) => {
-    recentConvoDate = result
-      console.log(recentConvoDate)
-    if(recentConvoDate==undefined){dateRefresh();}})},300)
-      }}
+    articles = []
+    //const articles = document.querySelectorAll("article")
+    dateRefresh()
+    //articles.forEach((element)=>{element.remove()})
+    function dateRefresh() {
+      setTimeout(() => {
+        getResult().then((result) => {
+          recentConvoDate = result
+          console.log(recentConvoDate, articles)
+          if (recentConvoDate == undefined) {
+            dateRefresh()
+          }
+        })
+      }, 300)
+    }
+  }
   // Initial URL check
+
   handleUrlChange()
 
   // Listen for URL changes using popstate event
