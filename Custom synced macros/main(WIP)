@@ -370,24 +370,23 @@ if (
           // Check if the style attribute is empty
           if (currentElement.getAttribute("style") === "") {
             //if (nestCount === 20) {
-            console.log("Found parent")
+            //console.log("Found parent")
             return true
             //}
           }
         }
       }
 
-      console.log("No matching parent found")
+      //console.log("No matching parent found")
       return false
     }
     const articlesWithEndUserType = Array.from(articles).filter((article) => {
       const innerHTML = Array.from(article.querySelectorAll("span"))
-
       return (
         article.querySelector('div[type="end-user"]') !== null &&
         document.querySelector('[data-test-id="tooltip-requester-name"]')
-          .textContent === innerHTML[0].textContent &&
-        checkIfNested(article)
+          .textContent === innerHTML[0].textContent //&&
+        //checkIfNested(article)
       )
     })
 
@@ -400,7 +399,7 @@ if (
     if (dates.length === 0) {
       return undefined // Return undef if no date
     }
-console.log(dates)
+//console.log(dates)
     const recentDate = dates.pop()
     const correctTimeFormat = recentDate
       ? recentDate.slice(0, 10).split("-", 3).reverse().join("/")
@@ -440,21 +439,25 @@ console.log(dates)
 
   // Function to handle URL change
   function handleUrlChange() {
-    articles = []
+let count = 0
     //const articles = document.querySelectorAll("article")
-    dateRefresh()
+if (window.location.href.indexOf("/agent/tickets/") != -1){
+    dateRefresh()}
     //articles.forEach((element)=>{element.remove()})
     function dateRefresh() {
+      if (count<10)
+        {count++
+        articles = []
       setTimeout(() => {
         getResult().then((result) => {
           recentConvoDate = result
-          console.log(recentConvoDate, articles)
+          console.log(recentConvoDate)//, articles)
           if (recentConvoDate == undefined) {
             dateRefresh()
           }
         })
-      }, 300)
-    }
+      }, 500)
+        }}
   }
   // Initial URL check
 
