@@ -65,7 +65,7 @@ if (
       sheetData = GM_getValue("sheetData", undefined)
       //console.log(sheetData)
       const matches = Array.from(
-        sheetData.matchAll(/(?<=\')(?!\,)[A-Z, .0-9\\%£$€\[\]]+(?=\')/gi),
+        sheetData.matchAll(/(?<=\')(?!\,)[A-Z, .0-9\\%£$€\[\];:*"@\-+=|\(\)x&~#?!\{\}\`’/]+(?=\')/gi),
       )
       const words = matches.map((match) => match[0])
       //console.log()
@@ -173,6 +173,7 @@ if (
     // setTimeout(()=>{fadeLoop()},200)
     // }
     const promptContainer = document.createElement("div")
+    promptContainer.id = "macro-prompt"
     promptContainer.style.position = "fixed"
     promptContainer.style.top = "5px"
     promptContainer.style.left = "85%"
@@ -279,6 +280,16 @@ if (
       //console.log("This div is editable.");
 
       onEditableClick()
+        refreshBox()
+        let count = 0
+          function refreshBox() {
+    setTimeout(() => {
+        if(recentConvoDate == undefined){document.getElementById("macro-prompt").style.backgroundColor = "#C72222"}else{document.getElementById("macro-prompt").style.backgroundColor = "#4CAF50"}
+      count++
+        console.log(recentConvoDate == undefined)
+        if(count<50){refreshBox()}//console.log(`it has been ${debugCount} seconds since start of program`);refresh();debugCount+=5
+    }, 100)
+  }
     } else {
       //console.log("This div is not editable.");
     }
@@ -286,9 +297,14 @@ if (
 
   var debugCount = 0
   function refresh() {
+              getResult().then((result) => {
+          console.log(recentConvoDate)//, articles)
+          if (recentConvoDate != undefined) {recentConvoDate = result
+          }
+        })
     setTimeout(() => {
       debugCount = 0 //console.log(`it has been ${debugCount} seconds since start of program`);refresh();debugCount+=5
-    }, 5000)
+    }, 1000)
   }
   refresh() //this makes the script not randomly stop working...somehow
   function createMessageBox(message, time) {
@@ -439,6 +455,9 @@ if (
 
   // Function to handle URL change
   function handleUrlChange() {
+      debugger
+      articles=[]
+      recentConvoDate = undefined
 let count = 0
     //const articles = document.querySelectorAll("article")
 if (window.location.href.indexOf("/agent/tickets/") != -1){
@@ -450,14 +469,18 @@ if (window.location.href.indexOf("/agent/tickets/") != -1){
         articles = []
       setTimeout(() => {
         getResult().then((result) => {
+
           recentConvoDate = result
+            showMessage(recentConvoDate)
           console.log(recentConvoDate)//, articles)
           if (recentConvoDate == undefined) {
+
             dateRefresh()
           }
         })
-      }, 500)
+      }, 300)
         }}
+      function makeSure(){count=8;dateRefresh()}
   }
   // Initial URL check
 
