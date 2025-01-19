@@ -281,21 +281,22 @@ if (
       //console.log("This div is editable.");
 
       onEditableClick()
+        boxCount = 0
         refreshBox()
-        let count = 0
-          function refreshBox() {
-    setTimeout(() => {
-        if(recentConvoDate == undefined){document.getElementById("macro-prompt").style.backgroundColor = "#C72222"}else{document.getElementById("macro-prompt").style.backgroundColor = "#4CAF50"}
-      count++
-        //console.log(recentConvoDate == undefined)
-        if(count<50){refreshBox();}//console.log(`it has been ${debugCount} seconds since start of program`);refresh();debugCount+=5
-    }, 100)
-  }
     } else {
       //console.log("This div is not editable.");
     }
   }
 
+        let boxCount = 0
+          function refreshBox() {
+    setTimeout(() => {
+        if(recentConvoDate == undefined){document.getElementById("macro-prompt").style.backgroundColor = "#C72222"}else{document.getElementById("macro-prompt").style.backgroundColor = "#4CAF50"}
+      boxCount++
+        //console.log(recentConvoDate == undefined)
+        if(boxCount<50){refreshBox();}//console.log(`it has been ${debugCount} seconds since start of program`);refresh();debugCount+=5
+    }, 100)
+  }
   var debugCount = 0
   function refresh() {
     setTimeout(() => {
@@ -477,6 +478,8 @@ const requesterCheck = elements.some((element) => {
 //}
   // Function to handle URL change
   function handleUrlChange() {
+      boxCount = 0
+      refreshBox()
       currentTicketNr = window.location.href.toString().split('/').pop()
    //   if (document.querySelectorAll('[data-test-id="tooltip-requester-name"]').length>1){
    //   grabDateFromUrl().then((result)=>{recentConvoDate = result;console.log('augh');return})
