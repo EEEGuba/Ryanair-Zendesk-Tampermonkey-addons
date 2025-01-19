@@ -297,6 +297,13 @@ if (
         if(boxCount<50){refreshBox();}//console.log(`it has been ${debugCount} seconds since start of program`);refresh();debugCount+=5
     }, 100)
   }
+              function refreshBoxFallback() {
+    setTimeout(() => {
+        if(recentConvoDate == undefined){document.getElementById("macro-prompt").style.backgroundColor = "#C72222"}else{document.getElementById("macro-prompt").style.backgroundColor = "#4CAF50"}
+        //console.log(recentConvoDate == undefined)
+        refreshBoxFallback();
+    }, 500)
+  }
   var debugCount = 0
   function refresh() {
     setTimeout(() => {
