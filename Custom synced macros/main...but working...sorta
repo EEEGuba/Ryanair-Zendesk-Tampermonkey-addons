@@ -117,7 +117,7 @@ if (
 
         // setReactInputValue(currentActiveElement,"test1")
     }
-    //bruh, literally nothing works, god dammit, it just resets my shiz after every input attempt
+    //bruh
     //function setReactInputValue(el, value) {
     //    // Store the last value to update React's internal tracker
     //    const last = el.value;
