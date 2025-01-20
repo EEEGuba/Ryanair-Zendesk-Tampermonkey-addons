@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Zendesk custom macros by Grzegorz Ptaszynski original
+// @name         Zendesk custom macros by Grzegorz Ptaszynski Additional features WIP
 // @namespace    http://tampermonkey.net/
 // @version      2024-12-28
 // @description  macro helper to ease the pasting of templates
@@ -22,7 +22,7 @@ if (
   window.location.href ==
   "https://app.smartsheet.com/sheets/V9qmvXM8rj3CFJ3XwV8f5Qr6JMfcQHQCq3QP2qr1?view=grid"
 ) {
-  (function () {
+  ;(function () {
     "use strict"
 
     // Save original open method
@@ -65,7 +65,7 @@ if (
       sheetData = GM_getValue("sheetData", undefined)
       //console.log(sheetData)
       const matches = Array.from(
-        sheetData.matchAll(/(?<=\')(?!\,)[A-Z, .0-9\\%£$€\[\]]+(?=\')/gi),
+        sheetData.matchAll(/(?<=\')(?!\,)[A-Z, .0-9\\%£$€\[\];:*"@\-+=|\(\)x&~#?!\{\}\`’/]+(?=\')/gi),
       )
       const words = matches.map((match) => match[0])
       //console.log()
@@ -86,7 +86,7 @@ if (
         }
       }
       //almostTitleArray.filter((x)=>x!=undefined)
-      console.log(titleArray, contentArray)
+      //console.log(titleArray, contentArray)
     }, 5000)
   }
 
@@ -100,6 +100,7 @@ if (
         }
     `)
   function onEditableClick() {
+   //console.log("article data", returnArticleData())
     //    createMessageBox("pick the macro you want, it will be ready to paste when you click it",10000)
     // Trigger the custom prompt with predefined options
     //console.log(isPromptBoxActive)
@@ -107,9 +108,71 @@ if (
       //console.log(789)
       showDatalistPrompt("Please select macro:", titleArray)
     }
+    // Convert NodeList to an array using Array.from
+    function returnArticleData() {
+      const articleData = Array.from(articles)
+        .map((article) => {
+          const paragraphs = article.querySelectorAll(".zd-comment") //:not(blockquote):not(tr)
+          //console.log(article)
+          if (
+            article.querySelector('div[type="end-user"]') !== null &&
+            document.querySelector('[data-test-id="tooltip-requester-name"]')
+              .textContent ===
+              Array.from(article.querySelectorAll("span"))[0].textContent
+          ) {
+            return Array.from(paragraphs).map((p) => p.textContent.trim())
+          } else {
+            return " "
+          }
+        })
+        .map((element) => {
+          if (Array.isArray(element)) {
+            return element.join(" ")
+          } else {
+            return element
+          }
+        })
+        .map((element) => {
+          return cutNs(
+            element
+              .replaceAll(
+                "The content of this e-mail or any file or attachment transmitted with it may have been changed or altered without the consent of the author. If you are not the intended recipient of this e-mail, you are hereby notified that any review, dissemination, disclosure, alteration, printing, circulation or transmission of, or any action taken or omitted in reliance on this e-mail or any file or attachment transmitted with it is prohibited and may be unlawful. If you have received this e-mail in error please notify Ryanair Holdings plc by contacting Ryanair Holdings plc (Company No. 249885) / Ryanair DAC. (Company No. 104547). Registered in the Republic Of Ireland. Airside Business Park, Swords, Co Dublin, Ireland.",
+                "",
+              )
+              .replaceAll("EXTERNAL EMAIL:", "")
+              .replaceAll(
+                "This email originated from outside of the Organisation. Do not click links or open attachments unless you recognise the sender and know the content is safe.",
+                "",
+              )
+              .replaceAll(
+                "EXTERNAL EMAIL:\n\t\t\n\t\n\tThis email originated from outside of the Organisation. Do not click links or open attachments unless you recognise the sender and know the content is safe.",
+                "",
+              ),
+          )
+            .split("\t")
+            .join(" ")
+        })
+        .join(" ")
+        .split(" ")
+
+      //.split(" ")
+      function cutNs(inputString) {
+        // Split the string by '\n' into an array
+        const parts = inputString.split("\n")
+
+        // Take the first 10 parts and join them back with '\n'
+        const first10Lines = parts.slice(0, 10).join(" ")
+
+        return first10Lines
+      }
+      const articleDataNoEmpty = articleData.filter((element) => element !== "")
+      return articleDataNoEmpty
+    }
+
     //WORKS // GM_openInTab("https://www.youtube.com/")
     //let currentActiveElement = document.activeElement
     //currentActiveElement.innerHTML = "eebydeeby"
+    //        .filter((element)=>{if(element!="EXTERNAL EMAIL:\n\t\t\n\t\n\tThis email originated from outside of the Organisation. Do not click links or open attachments unless you recognise the sender and know the content is safe."){return true}})
 
     // setReactInputValue(currentActiveElement,"test1")
   }
@@ -192,14 +255,73 @@ if (
     const datalist = document.createElement("datalist")
     datalist.id = "prompt-datalist"
 
+    // Create a container to simulate the datalist
+    const datalistContainer = document.createElement("div")
+    datalistContainer.style.maxHeight = "200px"
+    datalistContainer.style.overflowY = "auto"
+    datalistContainer.style.backgroundColor = "white"
+    datalistContainer.style.border = "1px solid #ccc"
+    datalistContainer.style.position = "absolute"
+    datalistContainer.style.top = "100px"
+    datalistContainer.style.width = "200px"
+    datalistContainer.style.zIndex = "9999"
+    datalistContainer.style.borderRadius = "4px"
+    datalistContainer.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.1)"
+
     // Add options to the datalist
     options.forEach((option) => {
-      const optionElement = document.createElement("option")
+      const optionElement = document.createElement("div")
       optionElement.value = option
-      datalist.appendChild(optionElement)
+      optionElement.innerText = option
+      optionElement.style.color = "black"
+      optionElement.style.padding = "5px"
+      optionElement.style.cursor = "pointer"
+      optionElement.style.borderBottom = "2px solid #f0f0f0"
+
+      optionElement.onmouseover = () => {
+    optionElement.style.backgroundColor = "#f0f0f0" // Optional: highlight on hover
+    const messageBox = document.createElement("div")
+    messageBox.id = options.indexOf(option)
+    messageBox.style.position = "fixed"
+    messageBox.style.top = "150px"
+    messageBox.style.left = "10px"
+   // messageBox.style.transform = "translateX(10%)"
+    messageBox.style.backgroundColor = "#4CAF50"
+    messageBox.style.color = "white"
+    messageBox.style.padding = "10px 20px"
+    messageBox.style.borderRadius = "5px"
+    messageBox.style.fontSize = "16px"
+    messageBox.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)"
+    messageBox.style.zIndex = "9999"
+    messageBox.style.display = "none"
+    messageBox.style.maxWidth = '50%';
+    document.body.appendChild(messageBox)
+
+       decode(contentArray[options.indexOf(`${option}`)])
+          .then((result) => {messageBox.innerText = result;messageBox.style.display = "block"})
+      }
+      optionElement.onmouseleave = ()=>{
+      document.getElementById(options.indexOf(option)).remove()
+      }
+      optionElement.onmouseout = () => {
+        optionElement.style.backgroundColor = "" // Reset highlight
+      }
+      optionElement.onmousedown = () => {
+          document.getElementById(options.indexOf(option)).remove()
+        select(optionElement,false)
+      }
+      datalistContainer.appendChild(optionElement)
+      promptContainer.appendChild(datalistContainer)
     })
     document.body.appendChild(datalist)
-
+    const confirmButton = document.createElement("button")
+    confirmButton.textContent = "Copy nothing and close"
+    confirmButton.style.marginTop = "5px"
+    confirmButton.style.padding = "5px"
+    confirmButton.onclick = function () {
+      select(inputElement)
+    }
+    promptContainer.appendChild(confirmButton)
     // Create an input field linked to the datalist
     const inputElement = document.createElement("input")
     inputElement.setAttribute("list", "prompt-datalist")
@@ -212,28 +334,21 @@ if (
     //inputElement.onchange(function(){if(inputElement.value!=undefined||inputElement.value!=null||inputElement.value!=""){console.log(inputElement.value)}})
     // Add the prompt container to the body
     document.body.appendChild(promptContainer)
-    inputElement.addEventListener("input", select)
+    //inputElement.addEventListener("input", select) //this method works
     // Create a confirm button
-    const confirmButton = document.createElement("button")
-    confirmButton.textContent = "Copy nothing and close"
-    confirmButton.style.marginTop = "5px"
-    confirmButton.style.padding = "5px"
-    confirmButton.onclick = function () {
-      select()
-    }
 
-    function select() {
+    function select(option,returnNotCopy=false) {
       isPromptBoxActive = false
-      const userInput = inputElement.value
+      let resultOfFunction = undefined
+      const userInput = option.value
         .replace(/%5cn/g, "\n") // Use a global regular expression to replace all occurrences of '%5cn' with a newline
         .replace(/\[RECENTDATE\]/g, recentConvoDate.toString())
-      console.log(options)
       if (options.includes(userInput)) {
         decode(contentArray[options.indexOf(`${userInput}`)])
           .then((result) => {
+            if(returnNotCopy){result = resultOfFunction;return}
             navigator.clipboard
               .writeText(result)
-              .then(() => {})
               .catch((err) => {
                 console.error("Error copying to clipboard: ", err) // Error handling
               })
@@ -242,14 +357,15 @@ if (
             console.error("Error decoding string: ", error) // Error handling for decode
           })
         //                navigator.clipboard.writeText((contentArray[options.indexOf(`${userInput}`)]));
-        createMessageBox(`Copied ${userInput}!`, 5000)
+          console.log(resultOfFunction)
+        if(returnNotCopy){return resultOfFunction}
+          createMessageBox(`Copied ${userInput}!`, 5000)
       } else {
         createMessageBox("Copying nothing, like you wanted!", 3000)
       }
       document.body.removeChild(promptContainer)
       document.body.removeChild(datalist)
     }
-    promptContainer.appendChild(confirmButton)
   }
 
   //const tabs = await GM.getTabs();
@@ -320,7 +436,6 @@ if (
   function showMessage(message) {
     createMessageBox(message, 3000)
   }
-
   document.addEventListener("mouseup", contenteditableCheck)
   // Function to extract the recent conversation date from the articles
   async function articleYoink() {
@@ -399,7 +514,7 @@ if (
     if (dates.length === 0) {
       return undefined // Return undef if no date
     }
-//console.log(dates)
+    //console.log(dates)
     const recentDate = dates.pop()
     const correctTimeFormat = recentDate
       ? recentDate.slice(0, 10).split("-", 3).reverse().join("/")
@@ -439,25 +554,27 @@ if (
 
   // Function to handle URL change
   function handleUrlChange() {
-let count = 0
+    let count = 0
     //const articles = document.querySelectorAll("article")
-if (window.location.href.indexOf("/agent/tickets/") != -1){
-    dateRefresh()}
+    if (window.location.href.indexOf("/agent/tickets/") != -1) {
+      dateRefresh()
+    }
     //articles.forEach((element)=>{element.remove()})
     function dateRefresh() {
-      if (count<10)
-        {count++
+      if (count < 10) {
+        count++
         articles = []
-      setTimeout(() => {
-        getResult().then((result) => {
-          recentConvoDate = result
-          console.log(recentConvoDate)//, articles)
-          if (recentConvoDate == undefined) {
-            dateRefresh()
-          }
-        })
-      }, 500)
-        }}
+        setTimeout(() => {
+          getResult().then((result) => {
+            recentConvoDate = result
+            console.log(recentConvoDate) //, articles)
+            if (recentConvoDate == undefined) {
+              dateRefresh()
+            }
+          })
+        }, 500)
+      }
+    }
   }
   // Initial URL check
 
