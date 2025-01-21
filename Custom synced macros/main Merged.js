@@ -10,7 +10,7 @@
 // @grant        GM_deleteValue
 // @grant        GM_getValue
 // @grant        GM_addStyle
-// @match        https://app.smartsheet.com/sheets/V9qmvXM8rj3CFJ3XwV8f5Qr6JMfcQHQCq3QP2qr1?view=grid
+// @match        https://app.smartsheet.com/sheets/qG3Jjrg3fVPXmRQgP9rHx2X6CjQhWCPCH2XRPQ51?view=grid
 // @grant        GM_log
 // @grant        GM_setValue
 // @grant        GM_listValues
@@ -18,7 +18,7 @@
 
 if (
     window.location.href ==
-    "https://app.smartsheet.com/sheets/V9qmvXM8rj3CFJ3XwV8f5Qr6JMfcQHQCq3QP2qr1?view=grid"
+    "https://app.smartsheet.com/sheets/qG3Jjrg3fVPXmRQgP9rHx2X6CjQhWCPCH2XRPQ51?view=grid"
 ) {
     ; (function () {
         "use strict"
@@ -45,16 +45,19 @@ if (
     let sheetData = undefined
     let titleArray = []
     let contentArray = []
+    let keywordArray = []
     let articles = []
     let recentConvoDate = undefined
     let isPromptBoxActive = false
     let boxCount = 0
     let debugCount = 0
+    let macroArray = []
     function DataInsertStart() {
         titleArray = []
         contentArray = []
+        keywordArray = []
         GM_openInTab(
-            "https://app.smartsheet.com/sheets/V9qmvXM8rj3CFJ3XwV8f5Qr6JMfcQHQCq3QP2qr1?view=grid",
+            "https://app.smartsheet.com/sheets/qG3Jjrg3fVPXmRQgP9rHx2X6CjQhWCPCH2XRPQ51?view=grid",
             { loadInBackground: true, insert: true },
         )
         setTimeout(() => {
@@ -69,7 +72,7 @@ if (
                 (x) => x != "DO NOT CHANGE column titles or this column",
             )
             filteredWords.pop()
-            filteredWords.splice(0, 23)
+            filteredWords.splice(0, 4)
             for (let i = 0; i < filteredWords.length; i++) {
                 if (filteredWords[i] === "TITLE COLUMN") {
                     titleArray.push(filteredWords[i + 1])
@@ -80,7 +83,23 @@ if (
                     contentArray.push(filteredWords[i + 1])
                 }
             }
-        }, 5000)
+                        for (let i = 0; i < filteredWords.length; i++) {
+                if (filteredWords[i] === "KEYWORDS COLUMN") {
+                    keywordArray.push(filteredWords[i + 1])
+                }
+            }
+                        for (let i = 0; i < titleArray.length; i++) {
+                if(titleArray[i]!="TITLE COLUMN"&&titleArray[i]!="KEYWORD COLUMN"&&titleArray[i]!="CONTENT COLUMN"){
+                    macroArray.push(new macro(i,titleArray[i],contentArray[i],i))
+
+                }
+                            console.log(macroArray.sort((a, b) => b.relevancePoints - a.relevancePoints))
+   function macro(index,title,content,relevancePoints){
+       this.index = index
+       this.title = title
+       this.content=content
+       this.relevancePoints= relevancePoints
+            }}}, 1000)
     }
 
     DataInsertStart()
@@ -101,7 +120,6 @@ if (
       const articleData = Array.from(articles)
         .map((article) => {
           const paragraphs = article.querySelectorAll(".zd-comment") //:not(blockquote):not(tr)
-          //console.log(article)
           if (
             article.querySelector('div[type="end-user"]') !== null &&
             document.querySelector('[data-test-id="tooltip-requester-name"]')
@@ -142,8 +160,6 @@ if (
         })
         .join(" ")
         .split(" ")
-
-      //.split(" ")
       function cutNs(inputString) {
         // Split the string by '\n' into an array
         const parts = inputString.split("\n")
@@ -168,135 +184,171 @@ if (
         }
     }
 
-    function showDatalistPrompt(message, options) {
-        isPromptBoxActive = true
-        const promptContainer = document.createElement("div")
-        promptContainer.id = "macro-prompt"
-        promptContainer.style.position = "fixed"
-        promptContainer.style.top = "5px"
-        promptContainer.style.left = "85%"
-        promptContainer.style.transform = "translateX(-50%)"
-        promptContainer.style.backgroundColor = "#4CAF50"
-        promptContainer.style.padding = "10px 20px"
-        promptContainer.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)"
-        promptContainer.style.zIndex = "9999"
-        promptContainer.style.color = "white"
+function showDatalistPrompt(message, options) {
+    isPromptBoxActive = true;
+    const promptContainer = document.createElement("div");
+    promptContainer.id = "macro-prompt";
+    promptContainer.style.position = "fixed";
+    promptContainer.style.top = "5px";
+    promptContainer.style.left = "80%";
+    promptContainer.style.transform = "translateX(-50%)";
+    promptContainer.style.backgroundColor = "#4CAF50";
+    promptContainer.style.padding = "10px 20px";
+    promptContainer.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+    promptContainer.style.zIndex = "9999";
+    promptContainer.style.color = "white";
+    promptContainer.style.width = "220px"; // Set a fixed width for the container to avoid drastic shifts
 
-        // Create a prompt message element
-        const messageElement = document.createElement("p")
-        messageElement.textContent = message
-        promptContainer.appendChild(messageElement)
+    // Create the header container (text + close button)
+    const headerContainer = document.createElement("div");
+    headerContainer.style.display = "flex";
+    headerContainer.style.justifyContent = "space-between";
+    headerContainer.style.alignItems = "center";
+    headerContainer.style.whiteSpace = "nowrap"; // Prevent the text from wrapping
 
-        // Create a datalist
-        const datalist = document.createElement("datalist")
-        datalist.id = "prompt-datalist"
+    // Create a prompt message element
+    const messageElement = document.createElement("p");
+    messageElement.textContent = message;
+    messageElement.style.margin = "0"; // Remove default margin to avoid spacing issues
+    messageElement.style.flexGrow = "1"; // Allow the message to take up available space
+    headerContainer.appendChild(messageElement);
+
+    // Create the "x" button (close button) and position it in the top right
+    const confirmButton = document.createElement("div");
+    confirmButton.textContent = "x";
+    confirmButton.style.padding = "2px 10px";
+    confirmButton.style.fontSize ="24px";
+    confirmButton.style.backgroundColor = "red";
+    confirmButton.style.border = "none";
+    confirmButton.style.color = "white";
+    confirmButton.style.fontWeight = "bold";
+    confirmButton.style.cursor = "pointer";
+
+confirmButton.style.position = "relative";
+confirmButton.style.top = "-10px"; // Move the button 3px up (negative value moves it up)
+confirmButton.style.left = "20px"; // Move the button 5px to the left
+    confirmButton.onclick = function () {
+              setTimeout(()=>{isPromptBoxActive = false},10000)
+
+                createMessageBox("Copying nothing, like you wanted!", 3000)
+      document.body.removeChild(promptContainer)
+      document.body.removeChild(datalist)
+    };
+    headerContainer.appendChild(confirmButton);
+
+    promptContainer.appendChild(headerContainer); // Add the header to the prompt container
+
+    // Create a datalist
+    const datalist = document.createElement("datalist");
+    datalist.id = "prompt-datalist";
 
     // Create a container to simulate the datalist
-    const datalistContainer = document.createElement("div")
-    datalistContainer.style.maxHeight = "200px"
-    datalistContainer.style.overflowY = "auto"
-    datalistContainer.style.backgroundColor = "white"
-    datalistContainer.style.border = "1px solid #ccc"
-    datalistContainer.style.position = "absolute"
-    datalistContainer.style.top = "100px"
-    datalistContainer.style.width = "200px"
-    datalistContainer.style.zIndex = "9999"
-    datalistContainer.style.borderRadius = "4px"
-    datalistContainer.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.1)"
+    const datalistContainer = document.createElement("div");
+    datalistContainer.style.maxHeight = "150px";
+    datalistContainer.style.overflowY = "auto";
+    datalistContainer.style.backgroundColor = "white";
+    datalistContainer.style.border = "1px solid #ccc";
+    datalistContainer.style.position = "absolute";
+    datalistContainer.style.top = "85px";
+    datalistContainer.style.width = "200px";
+    datalistContainer.style.zIndex = "9999";
+    datalistContainer.style.borderRadius = "4px";
+    datalistContainer.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.1)";
 
     // Add options to the datalist
     options.forEach((option) => {
-      const optionElement = document.createElement("div")
-      optionElement.value = option
-      optionElement.innerText = option
-      optionElement.style.color = "black"
-      optionElement.style.padding = "5px"
-      optionElement.style.cursor = "pointer"
-      optionElement.style.borderBottom = "2px solid #f0f0f0"
+        if(option!="CONTENT COLUMN"&&option!="KEYWORDS COLUMN"&&option!="TITLE COLUMN"){
+        const optionElement = document.createElement("div");
+        optionElement.value = option;
+        optionElement.innerText = option;
+        optionElement.style.color = "black";
+        optionElement.style.padding = "5px";
+        optionElement.style.cursor = "pointer";
+        optionElement.style.borderBottom = "2px solid #f0f0f0";
 
-      optionElement.onmouseover = () => {
-    optionElement.style.backgroundColor = "#f0f0f0" // Optional: highlight on hover
-    const messageBox = document.createElement("div")
-    messageBox.id = options.indexOf(option)
-    messageBox.style.position = "fixed"
-    messageBox.style.top = "150px"
-    messageBox.style.left = "10px"
-    messageBox.style.backgroundColor = "#4CAF50"
-    messageBox.style.color = "white"
-    messageBox.style.padding = "10px 20px"
-    messageBox.style.borderRadius = "5px"
-    messageBox.style.fontSize = "16px"
-    messageBox.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)"
-    messageBox.style.zIndex = "9999"
-    messageBox.style.display = "none"
-    messageBox.style.maxWidth = '50%';
-    document.body.appendChild(messageBox)
+        optionElement.onmouseover = () => {
+            optionElement.style.backgroundColor = "#f0f0f0"; // Optional: highlight on hover
+            const messageBox = document.createElement("div");
+            messageBox.id = options.indexOf(option);
+            messageBox.style.position = "fixed";
+            messageBox.style.top = "150px";
+            messageBox.style.left = "10px";
+            messageBox.style.backgroundColor = "#4CAF50";
+            messageBox.style.color = "white";
+            messageBox.style.padding = "10px 20px";
+            messageBox.style.borderRadius = "5px";
+            messageBox.style.fontSize = "16px";
+            messageBox.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+            messageBox.style.zIndex = "9999";
+            messageBox.style.display = "none";
+            messageBox.style.maxWidth = '50%';
+            document.body.appendChild(messageBox);
 
-       decode(contentArray[options.indexOf(`${option}`)])
-          .then((result) => {messageBox.innerText = result;messageBox.style.display = "block"})
-      }
-      optionElement.onmouseleave = ()=>{
-      document.getElementById(options.indexOf(option)).remove()
-      }
-      optionElement.onmouseout = () => {
-        optionElement.style.backgroundColor = "" // Reset highlight
-      }
-      optionElement.onmousedown = () => {
-          document.getElementById(options.indexOf(option)).remove()
-        select(optionElement,false)
-      }
-      datalistContainer.appendChild(optionElement)
-      promptContainer.appendChild(datalistContainer)
-    })
-    document.body.appendChild(datalist)
-    const confirmButton = document.createElement("button")
-    confirmButton.textContent = "Copy nothing and close"
-    confirmButton.style.marginTop = "5px"
-    confirmButton.style.padding = "5px"
-    confirmButton.onclick = function () {
-      select(inputElement)
-    }
-    promptContainer.appendChild(confirmButton)
+            decode(contentArray[options.indexOf(`${option}`)]).then((result) => {
+                messageBox.innerText = result;
+                messageBox.style.display = "block";
+            });
+        };
+
+        optionElement.onmouseleave = () => {
+            document.getElementById(options.indexOf(option)).remove();
+        };
+
+        optionElement.onmouseout = () => {
+            optionElement.style.backgroundColor = ""; // Reset highlight
+        };
+
+        optionElement.onmousedown = () => {
+            document.getElementById(options.indexOf(option)).remove();
+            select(optionElement, false);
+        };
+
+        datalistContainer.appendChild(optionElement);
+        promptContainer.appendChild(datalistContainer);
+    }});
+    document.body.appendChild(datalist);
+
     // Create an input field linked to the datalist
-    const inputElement = document.createElement("input")
-    inputElement.setAttribute("list", "prompt-datalist")
-    inputElement.setAttribute("placeholder", "Select an option")
-    inputElement.style.fontSize = "20px" // Adjust text size
-    inputElement.style.padding = "5px" // Add padding
-    inputElement.style.height = "30px" // Set height
-    inputElement.style.width = "200px"
-    promptContainer.appendChild(inputElement)
-    document.body.appendChild(promptContainer)
-    // Create a confirm button
+    const inputElement = document.createElement("input");
+    inputElement.setAttribute("list", "prompt-datalist");
+    inputElement.setAttribute("placeholder", "Type here to search");
+    inputElement.style.fontSize = "20px"; // Adjust text size
+    inputElement.style.padding = "5px"; // Add padding
+    inputElement.style.height = "30px"; // Set height
+    inputElement.style.width = "200px";
+    inputElement.onchange =
+    promptContainer.appendChild(inputElement);
 
-        function select() {
-            setTimeout(() => {
-                isPromptBoxActive = false
-            }, 3000)
-            const userInput = inputElement.value
-                .replace(/%5cn/g, "\n") // Use a global regular expression to replace all occurrences of '%5cn' with a newline
-                .replace(/\[RECENTDATE\]/g, recentConvoDate.toString())
-            //console.log(options)
-            if (options.includes(userInput)) {
-                decode(contentArray[options.indexOf(`${userInput}`)])
-                    .then((result) => {
-                        navigator.clipboard.writeText(result).catch((err) => {
-                            console.error("Error copying to clipboard: ", err) // Error handling
-                        })
-                    })
-                    .catch((error) => {
-                        console.error("Error decoding string: ", error) // Error handling for decode
-                    })
-                createMessageBox(`Copied ${userInput}!`, 5000)
-            } else {
-                createMessageBox("Copying nothing, like you wanted!", 3000)
-            }
-            document.body.removeChild(promptContainer)
-            document.body.removeChild(datalist)
-        }
-        promptContainer.appendChild(confirmButton)
+    document.body.appendChild(promptContainer);
+
+ function select(option,returnNotCopy=false) {
+      isPromptBoxActive = false
+      let resultOfFunction = undefined
+      const userInput = option.value
+        .replace(/%5cn/g, "\n") // Use a global regular expression to replace all occurrences of '%5cn' with a newline
+        .replace(/\[RECENTDATE\]/g, recentConvoDate.toString())
+      if (options.includes(userInput)) {
+        decode(contentArray[options.indexOf(`${userInput}`)])
+          .then((result) => {
+            if(returnNotCopy){result = resultOfFunction;return}
+            navigator.clipboard
+              .writeText(result)
+              .catch((err) => {
+                console.error("Error copying to clipboard: ", err) // Error handling
+              })
+          })
+          .catch((error) => {
+            console.error("Error decoding string: ", error) // Error handling for decode
+          })
+        if(returnNotCopy){return resultOfFunction}
+          createMessageBox(`Copied ${userInput}!`, 5000)
+      } else {
+        createMessageBox("Copying nothing, like you wanted!", 3000)
+      }
+      document.body.removeChild(promptContainer)
+      document.body.removeChild(datalist)
     }
-
+  }
     //const tabs = await GM.getTabs();
     function setTextInParagraph(text) {
         // Get the currently focused element (active element)
@@ -501,7 +553,6 @@ if (
                     getResult().then((result) => {
                         recentConvoDate = result
                         createMessageBox(recentConvoDate,3000)//todelete
-                        console.log(recentConvoDate) //, articles)
                         if (recentConvoDate == undefined) {
                             dateRefresh()
                         }
