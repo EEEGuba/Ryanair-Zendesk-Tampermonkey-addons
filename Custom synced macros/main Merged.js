@@ -83,23 +83,25 @@ if (
                     contentArray.push(filteredWords[i + 1])
                 }
             }
-                        for (let i = 0; i < filteredWords.length; i++) {
+            for (let i = 0; i < filteredWords.length; i++) {
                 if (filteredWords[i] === "KEYWORDS COLUMN") {
                     keywordArray.push(filteredWords[i + 1])
                 }
             }
-                        for (let i = 0; i < titleArray.length; i++) {
-                if(titleArray[i]!="TITLE COLUMN"&&titleArray[i]!="KEYWORD COLUMN"&&titleArray[i]!="CONTENT COLUMN"){
-                    macroArray.push(new macro(i,titleArray[i],contentArray[i],i))
+            for (let i = 0; i < titleArray.length; i++) {
+                if (titleArray[i] != "TITLE COLUMN" && titleArray[i] != "KEYWORD COLUMN" && titleArray[i] != "CONTENT COLUMN") {
+                    macroArray.push(new macro(i, titleArray[i], contentArray[i], i))
 
                 }
-                            console.log(macroArray.sort((a, b) => b.relevancePoints - a.relevancePoints))
-   function macro(index,title,content,relevancePoints){
-       this.index = index
-       this.title = title
-       this.content=content
-       this.relevancePoints= relevancePoints
-            }}}, 1000)
+                console.log(macroArray.sort((a, b) => b.relevancePoints - a.relevancePoints))
+                function macro(index, title, content, relevancePoints) {
+                    this.index = index
+                    this.title = title
+                    this.content = content
+                    this.relevancePoints = relevancePoints
+                }
+            }
+        }, 1000)//timeout needed, breaks otherwise
     }
 
     DataInsertStart()
@@ -112,68 +114,68 @@ if (
       `)
     function onEditableClick() {
         if (!isPromptBoxActive) {
-            showDatalistPrompt("Please select macro:", titleArray)
+            showDatalistPrompt("Please select macro:", macroArray)
         }
     }
-//below U N F I N I S H E D, CUTS OFF LATTER PARTS OF MAILS
-        function returnArticleData() {
-      const articleData = Array.from(articles)
-        .map((article) => {
-          const paragraphs = article.querySelectorAll(".zd-comment") //:not(blockquote):not(tr)
-          if (
-            article.querySelector('div[type="end-user"]') !== null &&
-            document.querySelector('[data-test-id="tooltip-requester-name"]')
-              .textContent ===
-              Array.from(article.querySelectorAll("span"))[0].textContent
-          ) {
-            return Array.from(paragraphs).map((p) => p.textContent.trim())
-          } else {
-            return " "
-          }
-        })
-        .map((element) => {
-          if (Array.isArray(element)) {
-            return element.join(" ")
-          } else {
-            return element
-          }
-        })
-        .map((element) => {
-          return cutNs(
-            element
-              .replaceAll(
-                "The content of this e-mail or any file or attachment transmitted with it may have been changed or altered without the consent of the author. If you are not the intended recipient of this e-mail, you are hereby notified that any review, dissemination, disclosure, alteration, printing, circulation or transmission of, or any action taken or omitted in reliance on this e-mail or any file or attachment transmitted with it is prohibited and may be unlawful. If you have received this e-mail in error please notify Ryanair Holdings plc by contacting Ryanair Holdings plc (Company No. 249885) / Ryanair DAC. (Company No. 104547). Registered in the Republic Of Ireland. Airside Business Park, Swords, Co Dublin, Ireland.",
-                "",
-              )
-              .replaceAll("EXTERNAL EMAIL:", "")
-              .replaceAll(
-                "This email originated from outside of the Organisation. Do not click links or open attachments unless you recognise the sender and know the content is safe.",
-                "",
-              )
-              .replaceAll(
-                "EXTERNAL EMAIL:\n\t\t\n\t\n\tThis email originated from outside of the Organisation. Do not click links or open attachments unless you recognise the sender and know the content is safe.",
-                "",
-              ),
-          )
-            .split("\t")
+    //below U N F I N I S H E D, CUTS OFF LATTER PARTS OF MAILS
+    function returnArticleData() {
+        const articleData = Array.from(articles)
+            .map((article) => {
+                const paragraphs = article.querySelectorAll(".zd-comment") //:not(blockquote):not(tr)
+                if (
+                    article.querySelector('div[type="end-user"]') !== null &&
+                    document.querySelector('[data-test-id="tooltip-requester-name"]')
+                        .textContent ===
+                    Array.from(article.querySelectorAll("span"))[0].textContent
+                ) {
+                    return Array.from(paragraphs).map((p) => p.textContent.trim())
+                } else {
+                    return " "
+                }
+            })
+            .map((element) => {
+                if (Array.isArray(element)) {
+                    return element.join(" ")
+                } else {
+                    return element
+                }
+            })
+            .map((element) => {
+                return cutNs(
+                    element
+                        .replaceAll(
+                            "The content of this e-mail or any file or attachment transmitted with it may have been changed or altered without the consent of the author. If you are not the intended recipient of this e-mail, you are hereby notified that any review, dissemination, disclosure, alteration, printing, circulation or transmission of, or any action taken or omitted in reliance on this e-mail or any file or attachment transmitted with it is prohibited and may be unlawful. If you have received this e-mail in error please notify Ryanair Holdings plc by contacting Ryanair Holdings plc (Company No. 249885) / Ryanair DAC. (Company No. 104547). Registered in the Republic Of Ireland. Airside Business Park, Swords, Co Dublin, Ireland.",
+                            "",
+                        )
+                        .replaceAll("EXTERNAL EMAIL:", "")
+                        .replaceAll(
+                            "This email originated from outside of the Organisation. Do not click links or open attachments unless you recognise the sender and know the content is safe.",
+                            "",
+                        )
+                        .replaceAll(
+                            "EXTERNAL EMAIL:\n\t\t\n\t\n\tThis email originated from outside of the Organisation. Do not click links or open attachments unless you recognise the sender and know the content is safe.",
+                            "",
+                        ),
+                )
+                    .split("\t")
+                    .join(" ")
+            })
             .join(" ")
-        })
-        .join(" ")
-        .split(" ")
-      function cutNs(inputString) {
-        // Split the string by '\n' into an array
-        const parts = inputString.split("\n")
+            .split(" ")
+        function cutNs(inputString) {
+            // Split the string by '\n' into an array
+            const parts = inputString.split("\n")
 
-        // Take the first 10 parts and join them back with '\n'
-        const first10Lines = parts.slice(0, 10).join(" ")
+            // Take the first 10 parts and join them back with '\n'
+            const first10Lines = parts.slice(0, 10).join(" ")
 
-        return first10Lines
-      }
-      const articleDataNoEmpty = articleData.filter((element) => element !== "")
-      return articleDataNoEmpty
+            return first10Lines
+        }
+        const articleDataNoEmpty = articleData.filter((element) => element !== "")
+        return articleDataNoEmpty
     }
 
-//End of U N F I N I S H E D
+    //End of U N F I N I S H E D
 
     async function getResult() {
         try {
@@ -184,182 +186,181 @@ if (
         }
     }
 
-function showDatalistPrompt(message, options) {
-    isPromptBoxActive = true;
-    const promptContainer = document.createElement("div");
-    promptContainer.id = "macro-prompt";
-    promptContainer.style.position = "fixed";
-    promptContainer.style.top = "5px";
-    promptContainer.style.left = "80%";
-    promptContainer.style.transform = "translateX(-50%)";
-    promptContainer.style.backgroundColor = "#4CAF50";
-    promptContainer.style.padding = "10px 20px";
-    promptContainer.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
-    promptContainer.style.zIndex = "9999";
-    promptContainer.style.color = "white";
-    promptContainer.style.width = "220px"; // Set a fixed width for the container to avoid drastic shifts
+    function showDatalistPrompt(message, options) {
+        let displayList=options
+        isPromptBoxActive = true;
+        const promptContainer = document.createElement("div");
+        promptContainer.id = "macro-prompt";
+        promptContainer.style.position = "fixed";
+        promptContainer.style.top = "5px";
+        promptContainer.style.left = "80%";
+        promptContainer.style.transform = "translateX(-50%)";
+        promptContainer.style.backgroundColor = "#4CAF50";
+        promptContainer.style.padding = "10px 20px";
+        promptContainer.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+        promptContainer.style.zIndex = "9999";
+        promptContainer.style.color = "white";
+        promptContainer.style.width = "220px"; // Set a fixed width for the container to avoid drastic shifts
 
-    // Create the header container (text + close button)
-    const headerContainer = document.createElement("div");
-    headerContainer.style.display = "flex";
-    headerContainer.style.justifyContent = "space-between";
-    headerContainer.style.alignItems = "center";
-    headerContainer.style.whiteSpace = "nowrap"; // Prevent the text from wrapping
+        // Create the header container (text + close button)
+        const headerContainer = document.createElement("div");
+        headerContainer.style.display = "flex";
+        headerContainer.style.justifyContent = "space-between";
+        headerContainer.style.alignItems = "center";
+        headerContainer.style.whiteSpace = "nowrap"; // Prevent the text from wrapping
 
-    // Create a prompt message element
-    const messageElement = document.createElement("p");
-    messageElement.textContent = message;
-    messageElement.style.margin = "0"; // Remove default margin to avoid spacing issues
-    messageElement.style.flexGrow = "1"; // Allow the message to take up available space
-    headerContainer.appendChild(messageElement);
+        // Create a prompt message element
+        const messageElement = document.createElement("p");
+        messageElement.textContent = message;
+        messageElement.style.margin = "0"; // Remove default margin to avoid spacing issues
+        messageElement.style.flexGrow = "1"; // Allow the message to take up available space
+        headerContainer.appendChild(messageElement);
 
-    // Create the "x" button (close button) and position it in the top right
-    const confirmButton = document.createElement("div");
-    confirmButton.textContent = "x";
-    confirmButton.style.padding = "2px 10px";
-    confirmButton.style.fontSize ="24px";
-    confirmButton.style.backgroundColor = "red";
-    confirmButton.style.border = "none";
-    confirmButton.style.color = "white";
-    confirmButton.style.fontWeight = "bold";
-    confirmButton.style.cursor = "pointer";
+        // Create the "x" button (close button) and position it in the top right
+        const confirmButton = document.createElement("div");
+        confirmButton.textContent = "x";
+        confirmButton.style.padding = "2px 10px";
+        confirmButton.style.fontSize = "24px";
+        confirmButton.style.backgroundColor = "red";
+        confirmButton.style.border = "none";
+        confirmButton.style.color = "white";
+        confirmButton.style.fontWeight = "bold";
+        confirmButton.style.cursor = "pointer";
 
-confirmButton.style.position = "relative";
-confirmButton.style.top = "-10px"; // Move the button 3px up (negative value moves it up)
-confirmButton.style.left = "20px"; // Move the button 5px to the left
-    confirmButton.onclick = function () {
-              setTimeout(()=>{isPromptBoxActive = false},10000)
+        confirmButton.style.position = "relative";
+        confirmButton.style.top = "-10px"; // Move the button 3px up (negative value moves it up)
+        confirmButton.style.left = "20px"; // Move the button 5px to the left
+        confirmButton.onclick = function () {
+            setTimeout(() => { isPromptBoxActive = false }, 10000)
 
-                createMessageBox("Copying nothing, like you wanted!", 3000)
-      document.body.removeChild(promptContainer)
-      document.body.removeChild(datalist)
-    };
-    headerContainer.appendChild(confirmButton);
-
-    promptContainer.appendChild(headerContainer); // Add the header to the prompt container
-
-    // Create a datalist
-    const datalist = document.createElement("datalist");
-    datalist.id = "prompt-datalist";
-
-    // Create a container to simulate the datalist
-    const datalistContainer = document.createElement("div");
-    datalistContainer.style.maxHeight = "150px";
-    datalistContainer.style.overflowY = "auto";
-    datalistContainer.style.backgroundColor = "white";
-    datalistContainer.style.border = "1px solid #ccc";
-    datalistContainer.style.position = "absolute";
-    datalistContainer.style.top = "85px";
-    datalistContainer.style.width = "200px";
-    datalistContainer.style.zIndex = "9999";
-    datalistContainer.style.borderRadius = "4px";
-    datalistContainer.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.1)";
-
-    // Add options to the datalist
-    options.forEach((option) => {
-        if(option!="CONTENT COLUMN"&&option!="KEYWORDS COLUMN"&&option!="TITLE COLUMN"){
-        const optionElement = document.createElement("div");
-        optionElement.value = option;
-        optionElement.innerText = option;
-        optionElement.style.color = "black";
-        optionElement.style.padding = "5px";
-        optionElement.style.cursor = "pointer";
-        optionElement.style.borderBottom = "2px solid #f0f0f0";
-
-        optionElement.onmouseover = () => {
-            optionElement.style.backgroundColor = "#f0f0f0"; // Optional: highlight on hover
-            const messageBox = document.createElement("div");
-            messageBox.id = options.indexOf(option);
-            messageBox.style.position = "fixed";
-            messageBox.style.top = "150px";
-            messageBox.style.left = "10px";
-            messageBox.style.backgroundColor = "#4CAF50";
-            messageBox.style.color = "white";
-            messageBox.style.padding = "10px 20px";
-            messageBox.style.borderRadius = "5px";
-            messageBox.style.fontSize = "16px";
-            messageBox.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
-            messageBox.style.zIndex = "9999";
-            messageBox.style.display = "none";
-            messageBox.style.maxWidth = '50%';
-            document.body.appendChild(messageBox);
-
-            decode(contentArray[options.indexOf(`${option}`)]).then((result) => {
-                messageBox.innerText = result;
-                messageBox.style.display = "block";
-            });
+            createMessageBox("Copying nothing, like you wanted!", 3000)
+            document.body.removeChild(promptContainer)
+            document.body.removeChild(datalist)
         };
+        headerContainer.appendChild(confirmButton);
 
-        optionElement.onmouseleave = () => {
-            document.getElementById(options.indexOf(option)).remove();
-        };
+        promptContainer.appendChild(headerContainer); // Add the header to the prompt container
 
-        optionElement.onmouseout = () => {
-            optionElement.style.backgroundColor = ""; // Reset highlight
-        };
+        // Create a datalist
+        const datalist = document.createElement("datalist");
+        datalist.id = "prompt-datalist";
 
-        optionElement.onmousedown = () => {
-            document.getElementById(options.indexOf(option)).remove();
-            select(optionElement, false);
-        };
+        // Create a container to simulate the datalist
+        const datalistContainer = document.createElement("div");
+        datalistContainer.style.maxHeight = "150px";
+        datalistContainer.style.overflowY = "auto";
+        datalistContainer.style.backgroundColor = "white";
+        datalistContainer.style.border = "1px solid #ccc";
+        datalistContainer.style.position = "absolute";
+        datalistContainer.style.top = "85px";
+        datalistContainer.style.width = "200px";
+        datalistContainer.style.zIndex = "9999";
+        datalistContainer.style.borderRadius = "4px";
+        datalistContainer.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.1)";
 
-        datalistContainer.appendChild(optionElement);
-        promptContainer.appendChild(datalistContainer);
-    }});
-    document.body.appendChild(datalist);
+        // Add options to the datalist
+        displayList.forEach((option) => {
+            if (option.title != "CONTENT COLUMN" && option.title != "KEYWORDS COLUMN" && option.title != "TITLE COLUMN") {
+                const optionElement = document.createElement("div");
+                optionElement.value = option.title;
+                optionElement.innerText = option.title;
+                optionElement.style.color = "black";
+                optionElement.style.padding = "5px";
+                optionElement.style.cursor = "pointer";
+                optionElement.style.borderBottom = "2px solid #f0f0f0";
+                optionElement.id = `option${option.index}`
+                optionElement.onmouseover = () => {
+                    optionElement.style.backgroundColor = "#f0f0f0"; // Optional: highlight on hover
+                    const messageBox = document.createElement("div");
+                    messageBox.id = options.indexOf(option);
+                    messageBox.style.position = "fixed";
+                    messageBox.style.top = "150px";
+                    messageBox.style.left = "10px";
+                    messageBox.style.backgroundColor = "#4CAF50";
+                    messageBox.style.color = "white";
+                    messageBox.style.padding = "10px 20px";
+                    messageBox.style.borderRadius = "5px";
+                    messageBox.style.fontSize = "16px";
+                    messageBox.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+                    messageBox.style.zIndex = "9999";
+                    messageBox.style.display = "none";
+                    messageBox.style.maxWidth = '50%';
+                    document.body.appendChild(messageBox);
+                    decode(option.content).then((result) => {
+                        messageBox.innerText = result;
+                        messageBox.style.display = "block";
+                    });
+                };
 
-    // Create an input field linked to the datalist
-    const inputElement = document.createElement("input");
-    inputElement.setAttribute("list", "prompt-datalist");
-    inputElement.setAttribute("placeholder", "Type here to search");
-    inputElement.style.fontSize = "20px"; // Adjust text size
-    inputElement.style.padding = "5px"; // Add padding
-    inputElement.style.height = "30px"; // Set height
-    inputElement.style.width = "200px";
-    inputElement.onchange =
-    promptContainer.appendChild(inputElement);
+                optionElement.onmouseleave = () => {
+                    document.getElementById(options.indexOf(option)).remove();
+                };
 
-    document.body.appendChild(promptContainer);
+                optionElement.onmouseout = () => {
+                    optionElement.style.backgroundColor = ""; // Reset highlight
+                };
 
- function select(option,returnNotCopy=false) {
-      isPromptBoxActive = false
-      let resultOfFunction = undefined
-      const userInput = option.value
-        .replace(/%5cn/g, "\n") // Use a global regular expression to replace all occurrences of '%5cn' with a newline
-        .replace(/\[RECENTDATE\]/g, recentConvoDate.toString())
-      if (options.includes(userInput)) {
-        decode(contentArray[options.indexOf(`${userInput}`)])
-          .then((result) => {
-            if(returnNotCopy){result = resultOfFunction;return}
-            navigator.clipboard
-              .writeText(result)
-              .catch((err) => {
-                console.error("Error copying to clipboard: ", err) // Error handling
-              })
-          })
-          .catch((error) => {
-            console.error("Error decoding string: ", error) // Error handling for decode
-          })
-        if(returnNotCopy){return resultOfFunction}
-          createMessageBox(`Copied ${userInput}!`, 5000)
-      } else {
-        createMessageBox("Copying nothing, like you wanted!", 3000)
-      }
-      document.body.removeChild(promptContainer)
-      document.body.removeChild(datalist)
-    }
-  }
-    //const tabs = await GM.getTabs();
-    function setTextInParagraph(text) {
-        // Get the currently focused element (active element)
-        const activeElement = document.activeElement
+                optionElement.onmousedown = () => {
+                    document.getElementById(options.indexOf(option)).remove();
+                    select(option, false);
+                };
 
-        // Find the first <p> element inside the activeElement
-        const pElement = activeElement.querySelector("p")
+                datalistContainer.appendChild(optionElement);
+                promptContainer.appendChild(datalistContainer);
+            }
+        });
+        document.body.appendChild(datalist);
 
-        // If a <p> element is found, set its text content
-        if (pElement) {
-            pElement.textContent = text // Sets the text of the <p> element
+        // Create an input field linked to the datalist
+        const inputElement = document.createElement("input");
+        inputElement.setAttribute("list", "prompt-datalist");
+        inputElement.setAttribute("placeholder", "Type here to search");
+        inputElement.style.fontSize = "20px"; // Adjust text size
+        inputElement.style.padding = "5px"; // Add padding
+        inputElement.style.height = "30px"; // Set height
+        inputElement.style.width = "200px";
+
+        inputElement.addEventListener('input',()=>{
+         const searchTerm = inputElement.value.toLowerCase();
+        displayList.forEach(item => {
+        const itemText = item.title.toLowerCase();
+        if (itemText.includes(searchTerm)) {
+        console.log(itemText,searchTerm,'block')
+            document.getElementById(`option${item.index}`).style.display = 'block';
+        } else {
+                    console.log('none',item)
+            document.getElementById(`option${item.index}`).style.display = 'none';
+        }
+    });
+
+        })
+            promptContainer.appendChild(inputElement);
+
+        document.body.appendChild(promptContainer);
+
+        function select(option, returnNotCopy = false) {
+            isPromptBoxActive = false
+            let resultOfFunction = undefined
+            const userInput = option.title
+                .replace(/%5cn/g, "\n") // Use a global regular expression to replace all occurrences of '%5cn' with a newline
+                .replace(/\[RECENTDATE\]/g, recentConvoDate.toString())
+
+                decode(option.content)
+                    .then((result) => {
+                        if (returnNotCopy) { result = resultOfFunction; return }
+                        navigator.clipboard
+                            .writeText(result)
+                            .catch((err) => {
+                                console.error("Error copying to clipboard: ", err) // Error handling
+                            })
+                    })
+                    .catch((error) => {
+                        console.error("Error decoding string: ", error) // Error handling for decode
+                    })
+                if (returnNotCopy) { return resultOfFunction }
+                createMessageBox(`Copied ${userInput}!`, 5000)
+            document.body.removeChild(promptContainer)
+            document.body.removeChild(datalist)
         }
     }
     function isContentEditable() {
@@ -406,13 +407,6 @@ confirmButton.style.left = "20px"; // Move the button 5px to the left
             refreshBoxFallback()
         }, 500)
     }
-    function refresh() {
-        setTimeout(() => {
-            debugCount = 0
-            refresh()
-        }, 1000)
-    }
-    refresh() //this makes the script not randomly stop working...somehow
     function createMessageBox(message, time) {
         const messageBox = document.createElement("div")
         messageBox.innerHTML = message
@@ -552,7 +546,7 @@ confirmButton.style.left = "20px"; // Move the button 5px to the left
                 setTimeout(() => {
                     getResult().then((result) => {
                         recentConvoDate = result
-                        createMessageBox(recentConvoDate,3000)//todelete
+                        createMessageBox(recentConvoDate, 3000)//todelete
                         if (recentConvoDate == undefined) {
                             dateRefresh()
                         }
