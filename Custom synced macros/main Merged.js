@@ -93,7 +93,6 @@ if (
                     macroArray.push(new macro(i, titleArray[i], contentArray[i], i))
 
                 }
-                console.log(macroArray.sort((a, b) => b.relevancePoints - a.relevancePoints))
                 function macro(index, title, content, relevancePoints) {
                     this.index = index
                     this.title = title
@@ -114,7 +113,7 @@ if (
       `)
     function onEditableClick() {
         if (!isPromptBoxActive) {
-            showDatalistPrompt("Please select macro:", macroArray)
+            showDatalistPrompt("Please select macro below:", macroArray)
         }
     }
     //below U N F I N I S H E D, CUTS OFF LATTER PARTS OF MAILS
@@ -193,10 +192,10 @@ if (
         promptContainer.id = "macro-prompt";
         promptContainer.style.position = "fixed";
         promptContainer.style.top = "5px";
-        promptContainer.style.left = "80%";
+        promptContainer.style.left = "83%";
         promptContainer.style.transform = "translateX(-50%)";
         promptContainer.style.backgroundColor = "#4CAF50";
-        promptContainer.style.padding = "10px 20px";
+        promptContainer.style.padding = "5px 10px";
         promptContainer.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
         promptContainer.style.zIndex = "9999";
         promptContainer.style.color = "white";
@@ -217,27 +216,27 @@ if (
         headerContainer.appendChild(messageElement);
 
         // Create the "x" button (close button) and position it in the top right
-        const confirmButton = document.createElement("div");
-        confirmButton.textContent = "x";
-        confirmButton.style.padding = "2px 10px";
-        confirmButton.style.fontSize = "24px";
-        confirmButton.style.backgroundColor = "red";
-        confirmButton.style.border = "none";
-        confirmButton.style.color = "white";
-        confirmButton.style.fontWeight = "bold";
-        confirmButton.style.cursor = "pointer";
+        const closeButton = document.createElement("div");
+        closeButton.textContent = "x";
+        closeButton.style.padding = "2px 10px";
+        closeButton.style.fontSize = "24px";
+        closeButton.style.backgroundColor = "red";
+        closeButton.style.border = "none";
+        closeButton.style.color = "white";
+        closeButton.style.fontWeight = "bold";
+        closeButton.style.cursor = "pointer";
 
-        confirmButton.style.position = "relative";
-        confirmButton.style.top = "-10px"; // Move the button 3px up (negative value moves it up)
-        confirmButton.style.left = "20px"; // Move the button 5px to the left
-        confirmButton.onclick = function () {
+        closeButton.style.position = "relative";
+        closeButton.style.top = "-5px";
+        closeButton.style.left = "10px";
+        closeButton.onclick = function () {
             setTimeout(() => { isPromptBoxActive = false }, 10000)
 
             createMessageBox("Copying nothing, like you wanted!", 3000)
             document.body.removeChild(promptContainer)
             document.body.removeChild(datalist)
         };
-        headerContainer.appendChild(confirmButton);
+        headerContainer.appendChild(closeButton);
 
         promptContainer.appendChild(headerContainer); // Add the header to the prompt container
 
@@ -252,8 +251,8 @@ if (
         datalistContainer.style.backgroundColor = "white";
         datalistContainer.style.border = "1px solid #ccc";
         datalistContainer.style.position = "absolute";
-        datalistContainer.style.top = "85px";
-        datalistContainer.style.width = "200px";
+        datalistContainer.style.top = "99px";
+        datalistContainer.style.width = "215px";
         datalistContainer.style.zIndex = "9999";
         datalistContainer.style.borderRadius = "4px";
         datalistContainer.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.1)";
@@ -310,7 +309,16 @@ if (
             }
         });
         document.body.appendChild(datalist);
-
+        const checkboxDiv = document.createElement("div")
+        const checkboxText = document.createElement("small")
+        checkboxText.innerText = "search content?"
+        const searchContentCheckbox = document.createElement("input")
+        searchContentCheckbox.setAttribute("type", "checkbox");
+        checkboxDiv.style.position = "relative";
+        checkboxDiv.style.top = "0px";
+        checkboxDiv.style.left = "0px";
+        checkboxDiv.style.width="200px"
+searchContentCheckbox.addEventListener('input',search)
         // Create an input field linked to the datalist
         const inputElement = document.createElement("input");
         inputElement.setAttribute("list", "prompt-datalist");
@@ -318,22 +326,27 @@ if (
         inputElement.style.fontSize = "20px"; // Adjust text size
         inputElement.style.padding = "5px"; // Add padding
         inputElement.style.height = "30px"; // Set height
-        inputElement.style.width = "200px";
+        inputElement.style.width = "210px";
+        checkboxDiv.appendChild(checkboxText)
+        checkboxDiv.appendChild(searchContentCheckbox)
+promptContainer.appendChild(checkboxDiv)
+        inputElement.addEventListener('input',search)
 
-        inputElement.addEventListener('input',()=>{
-         const searchTerm = inputElement.value.toLowerCase();
-        displayList.forEach(item => {
-        const itemText = item.title.toLowerCase();
-        if (itemText.includes(searchTerm)) {
-        console.log(itemText,searchTerm,'block')
-            document.getElementById(`option${item.index}`).style.display = 'block';
-        } else {
-                    console.log('none',item)
-            document.getElementById(`option${item.index}`).style.display = 'none';
-        }
-    });
+        //WIP
+        //TOADD: checkbox for checking content instead of titles
+function search(){
+    const searchTerm = inputElement.value.toLowerCase();
+    const searchContent = searchContentCheckbox.checked
+   displayList.forEach(item => {
+   let itemText = undefined;
+       if(searchContent){itemText = item.content.toLowerCase()}else{itemText = item.title.toLowerCase()}
+   if (itemText.includes(searchTerm)) {
+       document.getElementById(`option${item.index}`).style.display = 'block';
+   } else {
+       document.getElementById(`option${item.index}`).style.display = 'none';
+   }})}
+        //WIP
 
-        })
             promptContainer.appendChild(inputElement);
 
         document.body.appendChild(promptContainer);
