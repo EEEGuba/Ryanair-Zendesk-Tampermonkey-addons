@@ -113,11 +113,13 @@ if (
       `)
     function onEditableClick() {
         if (!isPromptBoxActive) {
-            showDatalistPrompt("Please select macro below:", macroArray)
+            showDatalistPrompt("Please select macro", macroArray)
         }
     }
     //below U N F I N I S H E D, CUTS OFF LATTER PARTS OF MAILS
     function returnArticleData() {
+        let cutNumber = 0
+
         const articleData = Array.from(articles)
             .map((article) => {
                 const paragraphs = article.querySelectorAll(".zd-comment") //:not(blockquote):not(tr)
@@ -162,20 +164,22 @@ if (
             .join(" ")
             .split(" ")
         function cutNs(inputString) {
+
             // Split the string by '\n' into an array
-            const parts = inputString.split("\n")
-
-            // Take the first 10 parts and join them back with '\n'
-            const first10Lines = parts.slice(0, 10).join(" ")
-
-            return first10Lines
+            let index = 0
+            let parts = inputString.split("\n")
+            parts.forEach((element)=>{
+            if(element === ""){cutNumber++}else{cutNumber = 0}
+                index++
+            if (cutNumber>=4){parts = parts.slice(0,index);return}
+            })
+            return parts.join(" ")
         }
         const articleDataNoEmpty = articleData.filter((element) => element !== "")
         return articleDataNoEmpty
     }
 
     //End of U N F I N I S H E D
-
     async function getResult() {
         try {
             const result = await articleGrabber() // Wait for the result from articleGrabber
@@ -213,6 +217,7 @@ if (
         messageElement.textContent = message;
         messageElement.style.margin = "0"; // Remove default margin to avoid spacing issues
         messageElement.style.flexGrow = "1"; // Allow the message to take up available space
+        messageElement.style.fontSize = "20px"
         headerContainer.appendChild(messageElement);
 
         // Create the "x" button (close button) and position it in the top right
@@ -558,6 +563,8 @@ function search(){
                 articles = []
                 setTimeout(() => {
                     getResult().then((result) => {
+                        console.log(returnArticleData())
+
                         recentConvoDate = result
                         createMessageBox(recentConvoDate, 3000)//todelete
                         if (recentConvoDate == undefined) {
