@@ -86,19 +86,7 @@ if (
                         break;
                 }
             }
-            for (let i = 0; i < titleArray.length; i++) {
-                if (titleArray[i] != "TITLE COLUMN" && titleArray[i] != "KEYWORD COLUMN" && titleArray[i] != "CONTENT COLUMN") {
-                    const keywordArr = keywordArray[i].replaceAll(" ", "").split(",")
-                    macroArray.push(new macro(i, titleArray[i], contentArray[i], keywordArr, 0))
-                }
-                function macro(index, title, content, keywords, relevancePoints) {
-                    this.index = index
-                    this.title = title
-                    this.content = content
-                    this.keywords = keywords
-                    this.relevancePoints = relevancePoints
-                }
-            }
+
         }, 1000)//timeout needed, breaks otherwise
     }
 
@@ -162,7 +150,8 @@ if (
                         .replaceAll(
                             "EXTERNAL EMAIL:\n\t\t\n\t\n\tThis email originated from outside of the Organisation. Do not click links or open attachments unless you recognise the sender and know the content is safe.",
                             "",
-                        ),
+                        )
+                        .replaceAll(/[\\.,/|-]/g, ''),
                 )
                     .split("\t")
                     .join(" ")
@@ -184,7 +173,6 @@ if (
         const articleDataNoEmpty = articleData.filter((element) => element !== "")
         return articleDataNoEmpty
     }
-
     //End of U N F I N I S H E D
     async function getResult() {
         try {
@@ -554,6 +542,28 @@ if (
         const result = await processString(inputString) // Get the result
         return result // Log or use the result
     }
+    function calculateRelevance() { //W I P
+        const returnedArticleData = returnArticleData()
+
+        for (let i = 0; i < titleArray.length; i++) {
+            if (titleArray[i] != "TITLE COLUMN" && titleArray[i] != "KEYWORD COLUMN" && titleArray[i] != "CONTENT COLUMN") {
+                const keywordArr = keywordArray[i].replaceAll(" ", "").split(",")
+                let relevance = 0
+                keywordArr.forEach((keyword) => {
+                    const weight = Number.parseInt(keyword.charAt(1))
+                    const word = keyword.substring(3)
+                    console.log(weight,word)
+                })
+                macroArray.push(new macro(i, titleArray[i], contentArray[i], relevance))
+            }
+            function macro(index, title, content, relevancePoints) {
+                this.index = index
+                this.title = title
+                this.content = content
+                this.relevancePoints = relevancePoints
+            }
+        }
+    }
     function handleUrlChange() {
         boxCount = 0
         refreshBox()
@@ -569,10 +579,9 @@ if (
                 articles = []
                 setTimeout(() => {
                     getResult().then((result) => {
-                        const log = returnArticleData()
-                        if (log.length>1){console.log(log)}
+                        calculateRelevance()
                         recentConvoDate = result
-                        createMessageBox(recentConvoDate, 3000)//todelete
+                        //createMessageBox(recentConvoDate, 3000)//todelete
                         if (recentConvoDate == undefined) {
                             dateRefresh()
                         }
