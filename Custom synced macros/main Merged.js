@@ -74,29 +74,28 @@ if (
             filteredWords.pop()
             filteredWords.splice(0, 4)
             for (let i = 0; i < filteredWords.length; i++) {
-                if (filteredWords[i] === "TITLE COLUMN") {
-                    titleArray.push(filteredWords[i + 1])
-                }
-            }
-            for (let i = 0; i < filteredWords.length; i++) {
-                if (filteredWords[i] === "CONTENT COLUMN") {
-                    contentArray.push(filteredWords[i + 1])
-                }
-            }
-            for (let i = 0; i < filteredWords.length; i++) {
-                if (filteredWords[i] === "KEYWORDS COLUMN") {
-                    keywordArray.push(filteredWords[i + 1])
+                switch (filteredWords[i]) {
+                    case "TITLE COLUMN":
+                        titleArray.push(filteredWords[i + 1])
+                        break;
+                    case "CONTENT COLUMN":
+                        contentArray.push(filteredWords[i + 1])
+                        break;
+                    case "KEYWORDS COLUMN":
+                        keywordArray.push(filteredWords[i + 1])
+                        break;
                 }
             }
             for (let i = 0; i < titleArray.length; i++) {
                 if (titleArray[i] != "TITLE COLUMN" && titleArray[i] != "KEYWORD COLUMN" && titleArray[i] != "CONTENT COLUMN") {
-                    macroArray.push(new macro(i, titleArray[i], contentArray[i], i))
-
+                    const keywordArr = keywordArray[i].replaceAll(" ", "").split(",")
+                    macroArray.push(new macro(i, titleArray[i], contentArray[i], keywordArr, 0))
                 }
-                function macro(index, title, content, relevancePoints) {
+                function macro(index, title, content, keywords, relevancePoints) {
                     this.index = index
                     this.title = title
                     this.content = content
+                    this.keywords = keywords
                     this.relevancePoints = relevancePoints
                 }
             }
@@ -112,22 +111,29 @@ if (
           }
       `)
     function onEditableClick() {
+        console.log(keywordArray)
         if (!isPromptBoxActive) {
             showDatalistPrompt("Please select macro", macroArray)
         }
     }
-    //below U N F I N I S H E D, CUTS OFF LATTER PARTS OF MAILS
+    //below U N F I N I S H E D, grabs bs like the dates did
     function returnArticleData() {
         let cutNumber = 0
 
         const articleData = Array.from(articles)
             .map((article) => {
+                articles.forEach((article) => { })
+                const innerHTML = Array.from(article.querySelectorAll("span"))
+                let parent = article.closest("div")
+                let targetDiv = parent.querySelector(
+                    `div[elementtiming="omnilog/${currentTicketNr}"]`,
+                )
                 const paragraphs = article.querySelectorAll(".zd-comment") //:not(blockquote):not(tr)
                 if (
                     article.querySelector('div[type="end-user"]') !== null &&
                     document.querySelector('[data-test-id="tooltip-requester-name"]')
                         .textContent ===
-                    Array.from(article.querySelectorAll("span"))[0].textContent
+                    innerHTML[0].textContent && Boolean(targetDiv)
                 ) {
                     return Array.from(paragraphs).map((p) => p.textContent.trim())
                 } else {
@@ -168,10 +174,10 @@ if (
             // Split the string by '\n' into an array
             let index = 0
             let parts = inputString.split("\n")
-            parts.forEach((element)=>{
-            if(element === ""){cutNumber++}else{cutNumber = 0}
+            parts.forEach((element) => {
+                if (element === "") { cutNumber++ } else { cutNumber = 0 }
                 index++
-            if (cutNumber>=4){parts = parts.slice(0,index);return}
+                if (cutNumber >= 4) { parts = parts.slice(0, index); return }
             })
             return parts.join(" ")
         }
@@ -190,7 +196,7 @@ if (
     }
 
     function showDatalistPrompt(message, options) {
-        let displayList=options
+        let displayList = options
         isPromptBoxActive = true;
         const promptContainer = document.createElement("div");
         promptContainer.id = "macro-prompt";
@@ -322,8 +328,8 @@ if (
         checkboxDiv.style.position = "relative";
         checkboxDiv.style.top = "0px";
         checkboxDiv.style.left = "0px";
-        checkboxDiv.style.width="200px"
-searchContentCheckbox.addEventListener('input',search)
+        checkboxDiv.style.width = "200px"
+        searchContentCheckbox.addEventListener('input', search)
         // Create an input field linked to the datalist
         const inputElement = document.createElement("input");
         inputElement.setAttribute("list", "prompt-datalist");
@@ -334,25 +340,27 @@ searchContentCheckbox.addEventListener('input',search)
         inputElement.style.width = "210px";
         checkboxDiv.appendChild(checkboxText)
         checkboxDiv.appendChild(searchContentCheckbox)
-promptContainer.appendChild(checkboxDiv)
-        inputElement.addEventListener('input',search)
+        promptContainer.appendChild(checkboxDiv)
+        inputElement.addEventListener('input', search)
 
         //WIP
         //TOADD: checkbox for checking content instead of titles
-function search(){
-    const searchTerm = inputElement.value.toLowerCase();
-    const searchContent = searchContentCheckbox.checked
-   displayList.forEach(item => {
-   let itemText = undefined;
-       if(searchContent){itemText = item.content.toLowerCase()}else{itemText = item.title.toLowerCase()}
-   if (itemText.includes(searchTerm)) {
-       document.getElementById(`option${item.index}`).style.display = 'block';
-   } else {
-       document.getElementById(`option${item.index}`).style.display = 'none';
-   }})}
+        function search() {
+            const searchTerm = inputElement.value.toLowerCase();
+            const searchContent = searchContentCheckbox.checked
+            displayList.forEach(item => {
+                let itemText = undefined;
+                if (searchContent) { itemText = item.content.toLowerCase() } else { itemText = item.title.toLowerCase() }
+                if (itemText.includes(searchTerm)) {
+                    document.getElementById(`option${item.index}`).style.display = 'block';
+                } else {
+                    document.getElementById(`option${item.index}`).style.display = 'none';
+                }
+            })
+        }
         //WIP
 
-            promptContainer.appendChild(inputElement);
+        promptContainer.appendChild(inputElement);
 
         document.body.appendChild(promptContainer);
 
@@ -363,20 +371,20 @@ function search(){
                 .replace(/%5cn/g, "\n") // Use a global regular expression to replace all occurrences of '%5cn' with a newline
                 .replace(/\[RECENTDATE\]/g, recentConvoDate.toString())
 
-                decode(option.content)
-                    .then((result) => {
-                        if (returnNotCopy) { result = resultOfFunction; return }
-                        navigator.clipboard
-                            .writeText(result)
-                            .catch((err) => {
-                                console.error("Error copying to clipboard: ", err) // Error handling
-                            })
-                    })
-                    .catch((error) => {
-                        console.error("Error decoding string: ", error) // Error handling for decode
-                    })
-                if (returnNotCopy) { return resultOfFunction }
-                createMessageBox(`Copied ${userInput}!`, 5000)
+            decode(option.content)
+                .then((result) => {
+                    if (returnNotCopy) { result = resultOfFunction; return }
+                    navigator.clipboard
+                        .writeText(result)
+                        .catch((err) => {
+                            console.error("Error copying to clipboard: ", err) // Error handling
+                        })
+                })
+                .catch((error) => {
+                    console.error("Error decoding string: ", error) // Error handling for decode
+                })
+            if (returnNotCopy) { return resultOfFunction }
+            createMessageBox(`Copied ${userInput}!`, 5000)
             document.body.removeChild(promptContainer)
             document.body.removeChild(datalist)
         }
@@ -397,7 +405,6 @@ function search(){
             refreshBox()
         }
     }
-
     function refreshBox() {
         setTimeout(() => {
             if (recentConvoDate == undefined) {
@@ -453,7 +460,6 @@ function search(){
     document.addEventListener("mouseup", contenteditableCheck)
     // Function to extract the recent conversation date from the articles
     function articleGrabber() {
-        //recentConvoDate = undefined
         return new Promise((resolve, reject) => {
             function checkArticles() {
                 if (articles.length < 1) {
@@ -563,8 +569,8 @@ function search(){
                 articles = []
                 setTimeout(() => {
                     getResult().then((result) => {
-                        console.log(returnArticleData())
-
+                        const log = returnArticleData()
+                        if (log.length>1){console.log(log)}
                         recentConvoDate = result
                         createMessageBox(recentConvoDate, 3000)//todelete
                         if (recentConvoDate == undefined) {
