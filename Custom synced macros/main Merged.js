@@ -99,7 +99,6 @@ if (
           }
       `)
     function onEditableClick() {
-        console.log(keywordArray)
         if (!isPromptBoxActive) {
             showDatalistPrompt("Please select macro", macroArray)
         }
@@ -107,21 +106,24 @@ if (
     //below U N F I N I S H E D, grabs bs like the dates did
     function returnArticleData() {
         let cutNumber = 0
-
         const articleData = Array.from(articles)
             .map((article) => {
-                articles.forEach((article) => { })
                 const innerHTML = Array.from(article.querySelectorAll("span"))
                 let parent = article.closest("div")
                 let targetDiv = parent.querySelector(
                     `div[elementtiming="omnilog/${currentTicketNr}"]`,
                 )
                 const paragraphs = article.querySelectorAll(".zd-comment") //:not(blockquote):not(tr)
+                const elements = Array.from(
+                document.querySelectorAll('[data-test-id="tooltip-requester-name"]'),
+            )
+            const requesterCheck = elements.some((element) => {
+                return element.textContent === innerHTML[0].textContent
+            })
                 if (
                     article.querySelector('div[type="end-user"]') !== null &&
-                    document.querySelector('[data-test-id="tooltip-requester-name"]')
-                        .textContent ===
-                    innerHTML[0].textContent && Boolean(targetDiv)
+                    requesterCheck &&
+                    Boolean(targetDiv)
                 ) {
                     return Array.from(paragraphs).map((p) => p.textContent.trim())
                 } else {
@@ -151,7 +153,7 @@ if (
                             "EXTERNAL EMAIL:\n\t\t\n\t\n\tThis email originated from outside of the Organisation. Do not click links or open attachments unless you recognise the sender and know the content is safe.",
                             "",
                         )
-                        .replaceAll(/[\\.,/|-]/g, ''),
+                        .replaceAll(/[\\.,/|\-():0-9"]/g, ''),
                 )
                     .split("\t")
                     .join(" ")
@@ -184,6 +186,8 @@ if (
     }
 
     function showDatalistPrompt(message, options) {
+        if(isPromptBoxActive){document.body.removeChild(document.getElementById("macro-prompt"))}
+        macroArray.sort((a, b) => b.relevancePoints - a.relevancePoints)
         let displayList = options
         isPromptBoxActive = true;
         const promptContainer = document.createElement("div");
@@ -230,7 +234,6 @@ if (
         closeButton.style.left = "10px";
         closeButton.onclick = function () {
             setTimeout(() => { isPromptBoxActive = false }, 10000)
-
             createMessageBox("Copying nothing, like you wanted!", 3000)
             document.body.removeChild(promptContainer)
             document.body.removeChild(datalist)
@@ -476,7 +479,6 @@ if (
             return undefined
         }
         const articlesWithEndUserType = Array.from(articles).filter((article) => {
-            articles.forEach((article) => { })
             const innerHTML = Array.from(article.querySelectorAll("span"))
             // Find the closest parent element that contains this article
             let parent = article.closest("div")
@@ -542,19 +544,25 @@ if (
         const result = await processString(inputString) // Get the result
         return result // Log or use the result
     }
+
     function calculateRelevance() { //W I P
         const returnedArticleData = returnArticleData()
-
+        const tree =buildTree(returnedArticleData)
+        console.log(buildTree(returnedArticleData))
         for (let i = 0; i < titleArray.length; i++) {
             if (titleArray[i] != "TITLE COLUMN" && titleArray[i] != "KEYWORD COLUMN" && titleArray[i] != "CONTENT COLUMN") {
                 const keywordArr = keywordArray[i].replaceAll(" ", "").split(",")
                 let relevance = 0
                 keywordArr.forEach((keyword) => {
                     const weight = Number.parseInt(keyword.charAt(1))
+                    if (isNaN(weight) || weight == 0) { return }
                     const word = keyword.substring(3)
-                    console.log(weight,word)
+                    relevance+=getWordCount(word)*weight
                 })
-                macroArray.push(new macro(i, titleArray[i], contentArray[i], relevance))
+                const lookup = macroArray.find(e => e.title === titleArray[i])
+                if (Boolean(lookup)) {lookup.relevancePoints = relevance} else {
+                    macroArray.push(new macro(i, titleArray[i], contentArray[i], relevance))
+                }
             }
             function macro(index, title, content, relevancePoints) {
                 this.index = index
@@ -563,6 +571,26 @@ if (
                 this.relevancePoints = relevancePoints
             }
         }
+        function getWordCount(word) {
+            let currentNode = tree;
+
+            for (let i = 0; i < word.length; i++) {
+                const letter = word[i];
+
+                // If the letter doesn't exist in the tree at this level, return 0
+                if (!currentNode[letter]) {
+                    return 0;
+                }
+
+                // Move deeper into the tree
+                currentNode = currentNode[letter];
+            }
+
+            // After traversing the word, check if 'count' exists, indicating the exact word was inserted
+            return currentNode.count || 0; // Return the count, or 0 if the word isn't found
+        }
+        console.log(macroArray)
+            showDatalistPrompt("Please select macro", macroArray)
     }
     function handleUrlChange() {
         boxCount = 0
@@ -579,12 +607,12 @@ if (
                 articles = []
                 setTimeout(() => {
                     getResult().then((result) => {
-                        calculateRelevance()
                         recentConvoDate = result
                         //createMessageBox(recentConvoDate, 3000)//todelete
                         if (recentConvoDate == undefined) {
                             dateRefresh()
                         }
+                        else(calculateRelevance())
                     })
                 }, 500)
             }
@@ -593,6 +621,29 @@ if (
             count = 8
             dateRefresh()
         }
+    }
+
+    function buildTree(words) {
+        let tree = {}
+        words.forEach(word => {
+            let currentNode = tree;
+            for (let i = 0; i < word.length; i++) {
+                const letter = word[i].toLowerCase();
+                // If the letter doesn't exist as a property, create it
+                if(currentNode == " "){return}
+                if (!currentNode[letter]) {
+                    currentNode[letter] = {};
+                }
+                // Move deeper into the tree
+                currentNode = currentNode[letter];
+            }
+            // At the end of the word, increase the count or initialize it
+            if (!currentNode.count) {
+                currentNode.count = 0;
+            }
+            currentNode.count += 1;
+        });
+        return tree;
     }
     // Initial URL check
 
@@ -614,3 +665,4 @@ if (
         handleUrlChange()
     }
 }
+
