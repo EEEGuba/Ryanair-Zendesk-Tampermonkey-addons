@@ -103,7 +103,6 @@ if (
             showDatalistPrompt("Please select macro", macroArray)
         }
     }
-    //below U N F I N I S H E D, grabs bs like the dates did
     function returnArticleData() {
         let cutNumber = 0
         const articleData = Array.from(articles)
@@ -115,11 +114,11 @@ if (
                 )
                 const paragraphs = article.querySelectorAll(".zd-comment") //:not(blockquote):not(tr)
                 const elements = Array.from(
-                document.querySelectorAll('[data-test-id="tooltip-requester-name"]'),
-            )
-            const requesterCheck = elements.some((element) => {
-                return element.textContent === innerHTML[0].textContent
-            })
+                    document.querySelectorAll('[data-test-id="tooltip-requester-name"]'),
+                )
+                const requesterCheck = elements.some((element) => {
+                    return element.textContent === innerHTML[0].textContent
+                })
                 if (
                     article.querySelector('div[type="end-user"]') !== null &&
                     requesterCheck &&
@@ -175,7 +174,6 @@ if (
         const articleDataNoEmpty = articleData.filter((element) => element !== "")
         return articleDataNoEmpty
     }
-    //End of U N F I N I S H E D
     async function getResult() {
         try {
             const result = await articleGrabber() // Wait for the result from articleGrabber
@@ -186,11 +184,11 @@ if (
     }
 
     function showDatalistPrompt(message, options) {
-            let isDragging = false;
-    let offsetX, offsetY;
-        const promptStartX = GM_getValue("promptX",false)
-        const promptStartY = GM_getValue("promptY",false)
-        if(isPromptBoxActive){document.body.removeChild(document.getElementById("macro-prompt"))}
+        let isDragging = false;
+        let offsetX, offsetY;
+        const promptStartX = GM_getValue("promptX", false)
+        const promptStartY = GM_getValue("promptY", false)
+        if (isPromptBoxActive) { document.body.removeChild(document.getElementById("macro-prompt")) }
         macroArray.sort((a, b) => b.relevancePoints - a.relevancePoints)
         let displayList = options
         isPromptBoxActive = true;
@@ -198,91 +196,91 @@ if (
         promptContainer.id = "macro-prompt";
         promptContainer.style.position = "fixed";
         promptContainer.style.top = "5px";
-        if(promptStartY){promptContainer.style.top = promptStartY}
+        if (promptStartY) { promptContainer.style.top = promptStartY }
         promptContainer.style.left = "450px"//"83%";
-        if(promptStartX){promptContainer.style.left = promptStartX}
+        if (promptStartX) { promptContainer.style.left = promptStartX }
         promptContainer.style.transform = "translateX(-50%)";
-        promptContainer.style.backgroundColor = "#4CAF50";
+        promptContainer.style.backgroundColor = "#056b00";
         promptContainer.style.padding = "5px 10px";
         promptContainer.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
         promptContainer.style.zIndex = "9999";
         promptContainer.style.color = "white";
         promptContainer.style.width = "220px";
-promptContainer.style.border = "1px solid #ccc";
-promptContainer.style.position = "relative";
+        promptContainer.style.border = "1px solid #ccc";
+        promptContainer.style.position = "relative";
 
         let lastX, lastY
         // Create the left bar
-const leftBar = document.createElement("div");
+        const leftBar = document.createElement("div");
         leftBar.style.cursor = "move"
-leftBar.style.width = "10px";
-leftBar.style.backgroundColor = "#193818";
-leftBar.style.border = "1px solid #ccc";
-leftBar.style.height = "104px";
-leftBar.style.position = "absolute";
-leftBar.style.left = "-12px";
-    leftBar.style.top = "-1px";
-    leftBar.style.backgroundImage = 'url(https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/refs/heads/main/Custom%20synced%20macros/three%20dots.png)';
-    leftBar.style.backgroundSize = 'cover';
-    leftBar.style.backgroundRepeat = 'no-repeat';
-    leftBar.style.backgroundSize = '300%'
+        leftBar.style.width = "10px";
+        leftBar.style.backgroundColor = "#193818";
+        leftBar.style.border = "1px solid #ccc";
+        leftBar.style.height = "104px";
+        leftBar.style.position = "absolute";
+        leftBar.style.left = "-12px";
+        leftBar.style.top = "-1px";
+        leftBar.style.backgroundImage = 'url(https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/refs/heads/main/Custom%20synced%20macros/three%20dots.png)';
+        leftBar.style.backgroundSize = 'cover';
+        leftBar.style.backgroundRepeat = 'no-repeat';
+        leftBar.style.backgroundSize = '300%'
         leftBar.style.backgroundPosition = 'center';
 
-           leftBar.addEventListener("mousedown", (e) => {
-        isDragging = true;
-               lastX = e.clientX
-               lastY = e.clientY
-        document.body.style.userSelect = "none"; // Prevent text selection while dragging
-    });
+        leftBar.addEventListener("mousedown", (e) => {
+            isDragging = true;
+            lastX = e.clientX
+            lastY = e.clientY
+            document.body.style.userSelect = "none"; // Prevent text selection while dragging
+        });
 
-// Add the left bar to the promptContainer
-promptContainer.appendChild(leftBar);
-const rightBar = document.createElement("div");
+        // Add the left bar to the promptContainer
+        promptContainer.appendChild(leftBar);
+        const rightBar = document.createElement("div");
         rightBar.style.cursor = "move"
-rightBar.style.width = "10px";
-rightBar.style.backgroundColor = "#193818";
-rightBar.style.border = "1px solid #ccc";
-rightBar.style.height = "104px";
-rightBar.style.position = "absolute";
-rightBar.style.right = "-12px";
-    rightBar.style.top = "-1px";
-    rightBar.style.backgroundImage = 'url(https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/refs/heads/main/Custom%20synced%20macros/three%20dots.png)';
-    rightBar.style.backgroundSize = 'cover';
-    rightBar.style.backgroundRepeat = 'no-repeat';
-    rightBar.style.backgroundSize = '300%'
+        rightBar.style.width = "10px";
+        rightBar.style.backgroundColor = "#193818";
+        rightBar.style.border = "1px solid #ccc";
+        rightBar.style.height = "104px";
+        rightBar.style.position = "absolute";
+        rightBar.style.right = "-12px";
+        rightBar.style.top = "-1px";
+        rightBar.style.backgroundImage = 'url(https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/refs/heads/main/Custom%20synced%20macros/three%20dots.png)';
+        rightBar.style.backgroundSize = 'cover';
+        rightBar.style.backgroundRepeat = 'no-repeat';
+        rightBar.style.backgroundSize = '300%'
         rightBar.style.backgroundPosition = 'center';
 
-           rightBar.addEventListener("mousedown", (e) => {
-               lastX = e.clientX
-               lastY = e.clientY
-        isDragging = true;
-        document.body.style.userSelect = "none"; // Prevent text selection while dragging
-    });
+        rightBar.addEventListener("mousedown", (e) => {
+            lastX = e.clientX
+            lastY = e.clientY
+            isDragging = true;
+            document.body.style.userSelect = "none"; // Prevent text selection while dragging
+        });
 
-    document.addEventListener("mousemove", (e) => {
-        if (isDragging) {
-            //console.log('x',promptContainer.style.left,lastX,e.clientX,'y',promptContainer.style.top,lastY,e.clientY)
-            promptContainer.style.left = `${parseInt(promptContainer.style.left) - (lastX-e.clientX)}px`;
-            lastX=e.clientX
-            promptContainer.style.top = `${parseInt(promptContainer.style.top) - (lastY-e.clientY)}px`;
-            lastY=e.clientY
-        }
-    });
+        document.addEventListener("mousemove", (e) => {
+            if (isDragging) {
+                //console.log('x',promptContainer.style.left,lastX,e.clientX,'y',promptContainer.style.top,lastY,e.clientY)
+                promptContainer.style.left = `${parseInt(promptContainer.style.left) - (lastX - e.clientX)}px`;
+                lastX = e.clientX
+                promptContainer.style.top = `${parseInt(promptContainer.style.top) - (lastY - e.clientY)}px`;
+                lastY = e.clientY
+            }
+        });
 
-    document.addEventListener("mouseup", () => {
-        isDragging = false;
-        document.body.style.userSelect = "auto"; // Restore text selection
-    });
- rightBar.addEventListener("mouseup", () => {
-        GM_setValue("promptX",promptContainer.style.left)
-        GM_setValue("promptY",promptContainer.style.top)
- })
- leftBar.addEventListener("mouseup", () => {
-        GM_setValue("promptX",promptContainer.style.left)
-        GM_setValue("promptY",promptContainer.style.top)
- })
-// Add the left bar to the promptContainer
-promptContainer.appendChild(rightBar);
+        document.addEventListener("mouseup", () => {
+            isDragging = false;
+            document.body.style.userSelect = "auto"; // Restore text selection
+        });
+        rightBar.addEventListener("mouseup", () => {
+            GM_setValue("promptX", promptContainer.style.left)
+            GM_setValue("promptY", promptContainer.style.top)
+        })
+        leftBar.addEventListener("mouseup", () => {
+            GM_setValue("promptX", promptContainer.style.left)
+            GM_setValue("promptY", promptContainer.style.top)
+        })
+        // Add the left bar to the promptContainer
+        promptContainer.appendChild(rightBar);
 
         // Create the header container (text + close button)
         const headerContainer = document.createElement("div");
@@ -335,9 +333,9 @@ promptContainer.appendChild(rightBar);
         datalistContainer.style.border = "1px solid #ccc";
         datalistContainer.style.position = "absolute";
         datalistContainer.style.top = "99px";
-        datalistContainer.style.width = "215px";
+        datalistContainer.style.width = "218px";
         datalistContainer.style.zIndex = "9999";
-        datalistContainer.style.borderRadius = "4px";
+        //datalistContainer.style.borderRadius = "4px";
         datalistContainer.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.1)";
 
         // Add options to the datalist
@@ -358,17 +356,17 @@ promptContainer.appendChild(rightBar);
                     messageBox.style.position = "fixed";
                     messageBox.style.top = "150px";
                     messageBox.style.right = "10px";
-                    console.log(window.event.clientX,window.innerWidth/2)
-                    if(window.event.clientX>window.innerWidth/2){ messageBox.style.left = "10px";}
-                    messageBox.style.backgroundColor = "#4CAF50";
+                    console.log(window.event.clientX, window.innerWidth / 2)
+                    if (window.event.clientX > window.innerWidth / 2) { messageBox.style.left = "10px"; }
+                    messageBox.style.backgroundColor = "#056b00";
                     messageBox.style.color = "white";
-                    messageBox.style.padding = "10px 20px";
-                    messageBox.style.borderRadius = "5px";
+                    messageBox.style.padding = "10px 10px";
+                    messageBox.style.borderRadius = "15px";
                     messageBox.style.fontSize = "16px";
                     messageBox.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
                     messageBox.style.zIndex = "9999";
                     messageBox.style.display = "none";
-                    messageBox.style.maxWidth = '50%';
+                    messageBox.style.maxWidth = '45%';
                     document.body.appendChild(messageBox);
                     decode(option.content).then((result) => {
                         messageBox.innerText = result;
@@ -396,7 +394,7 @@ promptContainer.appendChild(rightBar);
         document.body.appendChild(datalist);
         const checkboxDiv = document.createElement("div")
         const checkboxText = document.createElement("small")
-        checkboxText.innerText = "search content?"
+        checkboxText.innerText = "search content?   "
         const searchContentCheckbox = document.createElement("input")
         searchContentCheckbox.setAttribute("type", "checkbox");
         checkboxDiv.style.position = "relative";
@@ -440,7 +438,7 @@ promptContainer.appendChild(rightBar);
             isPromptBoxActive = false
             let resultOfFunction = undefined
             const userInput = option.title
-                .replace(/%5cn/g, "\n") 
+                .replace(/%5cn/g, "\n")
                 .replace(/\[RECENTDATE\]/g, recentConvoDate.toString())
             decode(option.content)
                 .then((result) => {
@@ -483,7 +481,7 @@ promptContainer.appendChild(rightBar);
                     "#C72222"
             } else {
                 document.getElementById("macro-prompt").style.backgroundColor =
-                    "#4CAF50"
+                    "#056b00"
             }
             boxCount++
             if (boxCount < 50) {
@@ -498,7 +496,7 @@ promptContainer.appendChild(rightBar);
                     "#C72222"
             } else {
                 document.getElementById("macro-prompt").style.backgroundColor =
-                    "#4CAF50"
+                    "#056b00"
             }
             refreshBoxFallback()
         }, 500)
@@ -627,7 +625,7 @@ promptContainer.appendChild(rightBar);
 
     function calculateRelevance() { //W I P
         const returnedArticleData = returnArticleData()
-        const tree =buildTree(returnedArticleData)
+        const tree = buildTree(returnedArticleData)
         console.log(buildTree(returnedArticleData))
         for (let i = 0; i < titleArray.length; i++) {
             if (titleArray[i] != "TITLE COLUMN" && titleArray[i] != "KEYWORD COLUMN" && titleArray[i] != "CONTENT COLUMN") {
@@ -637,10 +635,10 @@ promptContainer.appendChild(rightBar);
                     const weight = Number.parseInt(keyword.charAt(1))
                     if (isNaN(weight) || weight == 0) { return }
                     const word = keyword.substring(3)
-                    relevance+=getWordCount(word)*weight
+                    relevance += getWordCount(word) * weight
                 })
                 const lookup = macroArray.find(e => e.title === titleArray[i])
-                if (Boolean(lookup)) {lookup.relevancePoints = relevance} else {
+                if (Boolean(lookup)) { lookup.relevancePoints = relevance } else {
                     macroArray.push(new macro(i, titleArray[i], contentArray[i], relevance))
                 }
             }
@@ -670,7 +668,7 @@ promptContainer.appendChild(rightBar);
             return currentNode.count || 0; // Return the count, or 0 if the word isn't found
         }
         console.log(macroArray)
-            showDatalistPrompt("Please select macro", macroArray)
+        showDatalistPrompt("Please select macro", macroArray)
     }
     function handleUrlChange() {
         boxCount = 0
@@ -692,7 +690,7 @@ promptContainer.appendChild(rightBar);
                         if (recentConvoDate == undefined) {
                             dateRefresh()
                         }
-                        else(calculateRelevance())
+                        else (calculateRelevance())
                     })
                 }, 500)
             }
@@ -710,7 +708,7 @@ promptContainer.appendChild(rightBar);
             for (let i = 0; i < word.length; i++) {
                 const letter = word[i].toLowerCase();
                 // If the letter doesn't exist as a property, create it
-                if(currentNode == " "){return}
+                if (currentNode == " ") { return }
                 if (!currentNode[letter]) {
                     currentNode[letter] = {};
                 }
@@ -748,7 +746,7 @@ promptContainer.appendChild(rightBar);
 
     function handleKeyPress(event) {
         if (event.altKey && event.key === 'b') {
-if(isPromptBoxActive){document.getElementById('macro-prompt').style.left = '150px';document.getElementById('macro-prompt').style.top = '10px'}
+            if (isPromptBoxActive) { document.getElementById('macro-prompt').style.left = '150px'; document.getElementById('macro-prompt').style.top = '10px' }
         }
     }
     document.addEventListener('keydown', handleKeyPress);
