@@ -186,6 +186,10 @@ if (
     }
 
     function showDatalistPrompt(message, options) {
+            let isDragging = false;
+    let offsetX, offsetY;
+        const promptStartX = GM_getValue("promptX",false)
+        const promptStartY = GM_getValue("promptY",false)
         if(isPromptBoxActive){document.body.removeChild(document.getElementById("macro-prompt"))}
         macroArray.sort((a, b) => b.relevancePoints - a.relevancePoints)
         let displayList = options
@@ -194,14 +198,91 @@ if (
         promptContainer.id = "macro-prompt";
         promptContainer.style.position = "fixed";
         promptContainer.style.top = "5px";
-        promptContainer.style.left = "83%";
+        if(promptStartY){promptContainer.style.top = promptStartY}
+        promptContainer.style.left = "450px"//"83%";
+        if(promptStartX){promptContainer.style.left = promptStartX}
         promptContainer.style.transform = "translateX(-50%)";
         promptContainer.style.backgroundColor = "#4CAF50";
         promptContainer.style.padding = "5px 10px";
         promptContainer.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
         promptContainer.style.zIndex = "9999";
         promptContainer.style.color = "white";
-        promptContainer.style.width = "220px"; // Set a fixed width for the container to avoid drastic shifts
+        promptContainer.style.width = "220px";
+promptContainer.style.border = "1px solid #ccc";
+promptContainer.style.position = "relative";
+
+        let lastX, lastY
+        // Create the left bar
+const leftBar = document.createElement("div");
+        leftBar.style.cursor = "move"
+leftBar.style.width = "10px";
+leftBar.style.backgroundColor = "#193818";
+leftBar.style.border = "1px solid #ccc";
+leftBar.style.height = "104px";
+leftBar.style.position = "absolute";
+leftBar.style.left = "-12px";
+    leftBar.style.top = "-1px";
+    leftBar.style.backgroundImage = 'url(https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/refs/heads/main/Custom%20synced%20macros/three%20dots.png)';
+    leftBar.style.backgroundSize = 'cover';
+    leftBar.style.backgroundRepeat = 'no-repeat';
+    leftBar.style.backgroundSize = '300%'
+        leftBar.style.backgroundPosition = 'center';
+
+           leftBar.addEventListener("mousedown", (e) => {
+        isDragging = true;
+               lastX = e.clientX
+               lastY = e.clientY
+        document.body.style.userSelect = "none"; // Prevent text selection while dragging
+    });
+
+// Add the left bar to the promptContainer
+promptContainer.appendChild(leftBar);
+const rightBar = document.createElement("div");
+        rightBar.style.cursor = "move"
+rightBar.style.width = "10px";
+rightBar.style.backgroundColor = "#193818";
+rightBar.style.border = "1px solid #ccc";
+rightBar.style.height = "104px";
+rightBar.style.position = "absolute";
+rightBar.style.right = "-12px";
+    rightBar.style.top = "-1px";
+    rightBar.style.backgroundImage = 'url(https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/refs/heads/main/Custom%20synced%20macros/three%20dots.png)';
+    rightBar.style.backgroundSize = 'cover';
+    rightBar.style.backgroundRepeat = 'no-repeat';
+    rightBar.style.backgroundSize = '300%'
+        rightBar.style.backgroundPosition = 'center';
+
+           rightBar.addEventListener("mousedown", (e) => {
+               lastX = e.clientX
+               lastY = e.clientY
+        isDragging = true;
+        document.body.style.userSelect = "none"; // Prevent text selection while dragging
+    });
+
+    document.addEventListener("mousemove", (e) => {
+        if (isDragging) {
+            //console.log('x',promptContainer.style.left,lastX,e.clientX,'y',promptContainer.style.top,lastY,e.clientY)
+            promptContainer.style.left = `${parseInt(promptContainer.style.left) - (lastX-e.clientX)}px`;
+            lastX=e.clientX
+            promptContainer.style.top = `${parseInt(promptContainer.style.top) - (lastY-e.clientY)}px`;
+            lastY=e.clientY
+        }
+    });
+
+    document.addEventListener("mouseup", () => {
+        isDragging = false;
+        document.body.style.userSelect = "auto"; // Restore text selection
+    });
+ rightBar.addEventListener("mouseup", () => {
+        GM_setValue("promptX",promptContainer.style.left)
+        GM_setValue("promptY",promptContainer.style.top)
+ })
+ leftBar.addEventListener("mouseup", () => {
+        GM_setValue("promptX",promptContainer.style.left)
+        GM_setValue("promptY",promptContainer.style.top)
+ })
+// Add the left bar to the promptContainer
+promptContainer.appendChild(rightBar);
 
         // Create the header container (text + close button)
         const headerContainer = document.createElement("div");
@@ -276,7 +357,9 @@ if (
                     messageBox.id = options.indexOf(option);
                     messageBox.style.position = "fixed";
                     messageBox.style.top = "150px";
-                    messageBox.style.left = "10px";
+                    messageBox.style.right = "10px";
+                    console.log(window.event.clientX,window.innerWidth/2)
+                    if(window.event.clientX>window.innerWidth/2){ messageBox.style.left = "10px";}
                     messageBox.style.backgroundColor = "#4CAF50";
                     messageBox.style.color = "white";
                     messageBox.style.padding = "10px 20px";
@@ -349,8 +432,6 @@ if (
                 }
             })
         }
-        //WIP
-
         promptContainer.appendChild(inputElement);
 
         document.body.appendChild(promptContainer);
@@ -359,9 +440,8 @@ if (
             isPromptBoxActive = false
             let resultOfFunction = undefined
             const userInput = option.title
-                .replace(/%5cn/g, "\n") // Use a global regular expression to replace all occurrences of '%5cn' with a newline
+                .replace(/%5cn/g, "\n") 
                 .replace(/\[RECENTDATE\]/g, recentConvoDate.toString())
-
             decode(option.content)
                 .then((result) => {
                     if (returnNotCopy) { result = resultOfFunction; return }
@@ -664,5 +744,13 @@ if (
         originalReplaceState.apply(this, arguments)
         handleUrlChange()
     }
-}
 
+
+    function handleKeyPress(event) {
+        if (event.altKey && event.key === 'b') {
+if(isPromptBoxActive){document.getElementById('macro-prompt').style.left = '150px';document.getElementById('macro-prompt').style.top = '10px'}
+        }
+    }
+    document.addEventListener('keydown', handleKeyPress);
+
+}
