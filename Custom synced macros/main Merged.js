@@ -16,6 +16,37 @@
 // @grant        GM_listValues
 // ==/UserScript==
 
+//C O N F I G
+
+//change whatever you want in here, remember to save a working version first and make this a copy just in case
+//what works is replacing the part after the = sign with the color in quotations:
+//name of color ex. "blue";
+//hexcodes ex. "#056b00"
+//rgb ex. "rgb(155, 102, 102)"
+//save the code and reload zendesk to check if it works
+
+//the background color of messages and prompts(default is dark green "#056b00")
+const backgroundColor = "#056b00"
+
+//the color of the font of the messages and prompts(default is white "white")
+const fontColor = "white"
+
+//the color of the drag bars present at the sides of the prompt box (default is dark grey "#193818")
+const dragBarColor = "#193818"
+
+//the background color of the options in the list of macros(default is white "white")
+const optionsBackgroundColor = "white"
+
+//the background color of the search box(default is white "white")
+const inputBackgroundColor = "white"
+
+//the background color of the close button(default is "red")
+const closeButtonBackgroundColor = "red"
+
+//E N D   O F   C O N F I G
+
+
+
 if (
     window.location.href ==
     "https://app.smartsheet.com/sheets/qG3Jjrg3fVPXmRQgP9rHx2X6CjQhWCPCH2XRPQ51?view=grid"
@@ -41,6 +72,8 @@ if (
         }
     })()
 } else {
+    let isDraggedOut = undefined
+    let isMacroContainerPresent = false
     let currentTicketNr = window.location.href.toString().split("/").pop()
     let sheetData = undefined
     let titleArray = []
@@ -98,11 +131,13 @@ if (
               font-size: 16px;
           }
       `)
-    function onEditableClick() {
-        if (!isPromptBoxActive) {
-            showDatalistPrompt("Please select macro", macroArray)
-        }
-    }
+//      function onEditableClick() {
+//
+//        //document.querySelector('[data-test-id="tooltip-requester-name"]')
+//        if (!isPromptBoxActive) {
+//            showDatalistPrompt("Please select macro", macroArray)
+//        }
+//    }
     function returnArticleData() {
         let cutNumber = 0
         const articleData = Array.from(articles)
@@ -184,6 +219,7 @@ if (
     }
 
     function showDatalistPrompt(message, options) {
+        let lastX, lastY
         let isDragging = false;
         let offsetX, offsetY;
         const promptStartX = GM_getValue("promptX", false)
@@ -199,22 +235,64 @@ if (
         if (promptStartY) { promptContainer.style.top = promptStartY }
         promptContainer.style.left = "450px"//"83%";
         if (promptStartX) { promptContainer.style.left = promptStartX }
+        //if (promptContainer.style.top == '-500px' && promptContainer.style.left == '-500px') { console.log('amogus2') }
         promptContainer.style.transform = "translateX(-50%)";
-        promptContainer.style.backgroundColor = "#056b00";
+        promptContainer.style.backgroundColor = backgroundColor;
         promptContainer.style.padding = "5px 10px";
         promptContainer.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
         promptContainer.style.zIndex = "9999";
-        promptContainer.style.color = "white";
+        promptContainer.style.color = fontColor;
         promptContainer.style.width = "220px";
         promptContainer.style.border = "1px solid #ccc";
         promptContainer.style.position = "relative";
+            const sidebar = document.createElement("div");
 
-        let lastX, lastY
+        if (!isMacroContainerPresent) {
+            isMacroContainerPresent = true
+            sidebar.id = 'sidebar'
+            sidebar.textContent = "M A C R O S";
+            const smallTextContent = document.createElement('div')
+            smallTextContent.textContent = 'Drag from the green bar to retrieve the macro box, drag it back here to hide it again'
+            smallTextContent.style.position = 'fixed'
+            smallTextContent.style.top = '520px'
+            smallTextContent.style.fontSize = '10px'
+            sidebar.appendChild(smallTextContent)
+            //sidebar.style.float = 'left'
+            sidebar.style.padding = "2px 10px";
+            sidebar.style.fontSize = "26px";
+            sidebar.style.backgroundColor = backgroundColor;
+            sidebar.style.border = "none";
+            sidebar.style.color = fontColor;
+            sidebar.style.fontWeight = "bold";
+            sidebar.style.cursor = "pointer";
+            sidebar.style.position = "fixed";
+            sidebar.style.top = "315px";
+            sidebar.style.width = "40px";
+            sidebar.style.height = '405px'
+            sidebar.style.display = 'flex';
+            sidebar.style.justifyContent = 'center';
+            sidebar.style.textAlign = 'center';
+
+            sidebar.addEventListener("mousedown", (e) => {
+                const promptBox = document.getElementById('macro-prompt')
+                lastX = e.clientX
+                lastY = e.clientY
+                promptBox.style.top = `${e.clientY}px`
+                promptBox.style.left = `${e.clientX}px`
+                isDragging = true;
+                document.body.style.userSelect = "none"; // Prevent text selection while dragging
+            });
+            sidebar.addEventListener("mouseup", (e) => {
+                isDragging = false
+            });
+            document.querySelector('[data-test-id="support_nav"]').appendChild(sidebar)
+        }
+
         // Create the left bar
         const leftBar = document.createElement("div");
         leftBar.style.cursor = "move"
         leftBar.style.width = "10px";
-        leftBar.style.backgroundColor = "#193818";
+        leftBar.style.backgroundColor = dragBarColor;
         leftBar.style.border = "1px solid #ccc";
         leftBar.style.height = "104px";
         leftBar.style.position = "absolute";
@@ -238,7 +316,7 @@ if (
         const rightBar = document.createElement("div");
         rightBar.style.cursor = "move"
         rightBar.style.width = "10px";
-        rightBar.style.backgroundColor = "#193818";
+        rightBar.style.backgroundColor = dragBarColor;
         rightBar.style.border = "1px solid #ccc";
         rightBar.style.height = "104px";
         rightBar.style.position = "absolute";
@@ -267,7 +345,15 @@ if (
             }
         });
 
-        document.addEventListener("mouseup", () => {
+        document.addEventListener("mouseup", (e) => {
+            const targetRect = sidebar.getBoundingClientRect();
+            if (e.clientX >= targetRect.left && e.clientX <= targetRect.right &&
+                e.clientY >= targetRect.top && e.clientY <= targetRect.bottom && isDragging) {
+                ;promptContainer.style.left = '-500px';promptContainer.style.top = '-500px';setTimeout(() => {
+                    GM_setValue("promptX", promptContainer.style.left)
+                    GM_setValue("promptY", promptContainer.style.top)
+                }, 100);
+            }
             isDragging = false;
             document.body.style.userSelect = "auto"; // Restore text selection
         });
@@ -302,9 +388,9 @@ if (
         closeButton.textContent = "x";
         closeButton.style.padding = "2px 10px";
         closeButton.style.fontSize = "24px";
-        closeButton.style.backgroundColor = "red";
+        closeButton.style.backgroundColor = closeButtonBackgroundColor
         closeButton.style.border = "none";
-        closeButton.style.color = "white";
+        closeButton.style.color = fontColor;
         closeButton.style.fontWeight = "bold";
         closeButton.style.cursor = "pointer";
 
@@ -314,8 +400,10 @@ if (
         closeButton.onclick = function () {
             setTimeout(() => { isPromptBoxActive = false }, 10000)
             createMessageBox("Copying nothing, like you wanted!", 3000)
-            document.body.removeChild(promptContainer)
-            document.body.removeChild(datalist)
+            ;promptContainer.style.left = '-500px';promptContainer.style.top = '-500px';setTimeout(() => {
+                GM_setValue("promptX", promptContainer.style.left)
+                GM_setValue("promptY", promptContainer.style.top)
+            }, 100);
         };
         headerContainer.appendChild(closeButton);
 
@@ -329,7 +417,7 @@ if (
         const datalistContainer = document.createElement("div");
         datalistContainer.style.maxHeight = "150px";
         datalistContainer.style.overflowY = "auto";
-        datalistContainer.style.backgroundColor = "white";
+        datalistContainer.style.backgroundColor = optionsBackgroundColor;
         datalistContainer.style.border = "1px solid #ccc";
         datalistContainer.style.position = "absolute";
         datalistContainer.style.top = "99px";
@@ -356,10 +444,9 @@ if (
                     messageBox.style.position = "fixed";
                     messageBox.style.top = "150px";
                     messageBox.style.right = "10px";
-                    console.log(window.event.clientX, window.innerWidth / 2)
                     if (window.event.clientX > window.innerWidth / 2) { messageBox.style.left = "10px"; }
-                    messageBox.style.backgroundColor = "#056b00";
-                    messageBox.style.color = "white";
+                    messageBox.style.backgroundColor = backgroundColor;
+                    messageBox.style.color = fontColor;
                     messageBox.style.padding = "10px 10px";
                     messageBox.style.borderRadius = "15px";
                     messageBox.style.fontSize = "16px";
@@ -406,6 +493,7 @@ if (
         const inputElement = document.createElement("input");
         inputElement.setAttribute("list", "prompt-datalist");
         inputElement.setAttribute("placeholder", "Type here to search");
+        inputElement.style.backgroundColor = inputBackgroundColor
         inputElement.style.fontSize = "20px"; // Adjust text size
         inputElement.style.padding = "5px"; // Add padding
         inputElement.style.height = "30px"; // Set height
@@ -414,6 +502,7 @@ if (
         checkboxDiv.appendChild(searchContentCheckbox)
         promptContainer.appendChild(checkboxDiv)
         inputElement.addEventListener('input', search)
+
 
         //WIP
         //TOADD: checkbox for checking content instead of titles
@@ -469,7 +558,7 @@ if (
     }
     function contenteditableCheck() {
         if (isContentEditable()) {
-            onEditableClick()
+            //onEditableClick()
             boxCount = 0
             refreshBox()
         }
@@ -481,7 +570,7 @@ if (
                     "#C72222"
             } else {
                 document.getElementById("macro-prompt").style.backgroundColor =
-                    "#056b00"
+                    backgroundColor
             }
             boxCount++
             if (boxCount < 50) {
@@ -496,7 +585,7 @@ if (
                     "#C72222"
             } else {
                 document.getElementById("macro-prompt").style.backgroundColor =
-                    "#056b00"
+                    backgroundColor
             }
             refreshBoxFallback()
         }, 500)
@@ -508,8 +597,8 @@ if (
         messageBox.style.top = "150px"
         messageBox.style.left = "50%"
         messageBox.style.transform = "translateX(-50%)"
-        messageBox.style.backgroundColor = "#4CAF50"
-        messageBox.style.color = "white"
+        messageBox.style.backgroundColor = backgroundColor
+        messageBox.style.color = fontColor
         messageBox.style.padding = "10px 20px"
         messageBox.style.borderRadius = "5px"
         messageBox.style.fontSize = "16px"
@@ -626,7 +715,6 @@ if (
     function calculateRelevance() { //W I P
         const returnedArticleData = returnArticleData()
         const tree = buildTree(returnedArticleData)
-        console.log(buildTree(returnedArticleData))
         for (let i = 0; i < titleArray.length; i++) {
             if (titleArray[i] != "TITLE COLUMN" && titleArray[i] != "KEYWORD COLUMN" && titleArray[i] != "CONTENT COLUMN") {
                 const keywordArr = keywordArray[i].replaceAll(" ", "").split(",")
@@ -667,8 +755,8 @@ if (
             // After traversing the word, check if 'count' exists, indicating the exact word was inserted
             return currentNode.count || 0; // Return the count, or 0 if the word isn't found
         }
-        console.log(macroArray)
         showDatalistPrompt("Please select macro", macroArray)
+
     }
     function handleUrlChange() {
         boxCount = 0
