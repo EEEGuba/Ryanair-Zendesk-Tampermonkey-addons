@@ -73,6 +73,7 @@ if (
     })()
 } else {
     let isDraggedOut = undefined
+    let isDragging = false;
     let isMacroContainerPresent = false
     let currentTicketNr = window.location.href.toString().split("/").pop()
     let sheetData = undefined
@@ -85,6 +86,8 @@ if (
     let boxCount = 0
     let debugCount = 0
     let macroArray = []
+    let lastX, lastY
+    let offsetX, offsetY;
     function DataInsertStart() {
         titleArray = []
         contentArray = []
@@ -131,13 +134,13 @@ if (
               font-size: 16px;
           }
       `)
-//      function onEditableClick() {
-//
-//        //document.querySelector('[data-test-id="tooltip-requester-name"]')
-//        if (!isPromptBoxActive) {
-//            showDatalistPrompt("Please select macro", macroArray)
-//        }
-//    }
+    //      function onEditableClick() {
+    //
+    //        //document.querySelector('[data-test-id="tooltip-requester-name"]')
+    //        if (!isPromptBoxActive) {
+    //            showDatalistPrompt("Please select macro", macroArray)
+    //        }
+    //    }
     function returnArticleData() {
         let cutNumber = 0
         const articleData = Array.from(articles)
@@ -219,12 +222,8 @@ if (
     }
 
     function showDatalistPrompt(message, options) {
-        let lastX, lastY
-        let isDragging = false;
-        let offsetX, offsetY;
         const promptStartX = GM_getValue("promptX", false)
         const promptStartY = GM_getValue("promptY", false)
-        if (isPromptBoxActive) { document.body.removeChild(document.getElementById("macro-prompt")) }
         macroArray.sort((a, b) => b.relevancePoints - a.relevancePoints)
         let displayList = options
         isPromptBoxActive = true;
@@ -245,7 +244,7 @@ if (
         promptContainer.style.width = "220px";
         promptContainer.style.border = "1px solid #ccc";
         promptContainer.style.position = "relative";
-            const sidebar = document.createElement("div");
+        const sidebar = document.createElement("div");
 
         if (!isMacroContainerPresent) {
             isMacroContainerPresent = true
@@ -268,7 +267,7 @@ if (
             sidebar.style.position = "fixed";
             sidebar.style.top = "315px";
             sidebar.style.width = "40px";
-            sidebar.style.height = '405px'
+            sidebar.style.height = '310px'
             sidebar.style.display = 'flex';
             sidebar.style.justifyContent = 'center';
             sidebar.style.textAlign = 'center';
@@ -287,6 +286,26 @@ if (
             });
             document.querySelector('[data-test-id="support_nav"]').appendChild(sidebar)
         }
+        //       const quickCopyButtonContainer = document.createElement('div')
+        //               sidebar.appendChild(quickCopyButtonContainer);
+
+        //        const quickCopyButtonTemplate = document.createElement("div");
+        //       quickCopyButtonTemplate.style.padding = "2px 10px";
+        //       quickCopyButtonTemplate.style.fontSize = "24px";
+        //       quickCopyButtonTemplate.style.backgroundColor = closeButtonBackgroundColor
+        //       quickCopyButtonTemplate.style.border = "none";
+        //       quickCopyButtonTemplate.style.color = fontColor;
+        //       quickCopyButtonTemplate.style.fontWeight = "bold";
+        //       quickCopyButtonTemplate.style.cursor = "pointer";
+        //    // quickCopyButtonTemplate.style.position = "relative";
+        //    // quickCopyButtonTemplate.style.top = "-5px";
+        //    // quickCopyButtonTemplate.style.left = "10px";
+
+
+        //       quickCopyButtonTemplate.textContent = ""
+        //       quickCopyButtonTemplate.onclick = function () {
+        //       };
+        //       sidebar.appendChild(closeButton);
 
         // Create the left bar
         const leftBar = document.createElement("div");
@@ -334,7 +353,6 @@ if (
             isDragging = true;
             document.body.style.userSelect = "none"; // Prevent text selection while dragging
         });
-
         document.addEventListener("mousemove", (e) => {
             if (isDragging) {
                 //console.log('x',promptContainer.style.left,lastX,e.clientX,'y',promptContainer.style.top,lastY,e.clientY)
@@ -349,7 +367,7 @@ if (
             const targetRect = sidebar.getBoundingClientRect();
             if (e.clientX >= targetRect.left && e.clientX <= targetRect.right &&
                 e.clientY >= targetRect.top && e.clientY <= targetRect.bottom && isDragging) {
-                ;promptContainer.style.left = '-500px';promptContainer.style.top = '-500px';setTimeout(() => {
+                ; promptContainer.style.left = '-500px'; promptContainer.style.top = '-500px'; setTimeout(() => {
                     GM_setValue("promptX", promptContainer.style.left)
                     GM_setValue("promptY", promptContainer.style.top)
                 }, 100);
@@ -398,12 +416,11 @@ if (
         closeButton.style.top = "-5px";
         closeButton.style.left = "10px";
         closeButton.onclick = function () {
-            setTimeout(() => { isPromptBoxActive = false }, 10000)
             createMessageBox("Copying nothing, like you wanted!", 3000)
-            ;promptContainer.style.left = '-500px';promptContainer.style.top = '-500px';setTimeout(() => {
-                GM_setValue("promptX", promptContainer.style.left)
-                GM_setValue("promptY", promptContainer.style.top)
-            }, 100);
+                ; promptContainer.style.left = '-500px'; promptContainer.style.top = '-500px'; setTimeout(() => {
+                    GM_setValue("promptX", promptContainer.style.left)
+                    GM_setValue("promptY", promptContainer.style.top)
+                }, 100);
         };
         headerContainer.appendChild(closeButton);
 
@@ -524,7 +541,8 @@ if (
         document.body.appendChild(promptContainer);
 
         function select(option, returnNotCopy = false) {
-            isPromptBoxActive = false
+            //     isPromptBoxActive = false
+            promptContainer.style.left = '-500px'; promptContainer.style.top = '-500px'
             let resultOfFunction = undefined
             const userInput = option.title
                 .replace(/%5cn/g, "\n")
@@ -543,8 +561,8 @@ if (
                 })
             if (returnNotCopy) { return resultOfFunction }
             createMessageBox(`Copied ${userInput}!`, 5000)
-            document.body.removeChild(promptContainer)
-            document.body.removeChild(datalist)
+            //    document.body.removeChild(promptContainer)
+            //     document.body.removeChild(datalist)
         }
     }
     function isContentEditable() {
@@ -755,8 +773,13 @@ if (
             // After traversing the word, check if 'count' exists, indicating the exact word was inserted
             return currentNode.count || 0; // Return the count, or 0 if the word isn't found
         }
+        if (isPromptBoxActive) {
+            const promptContainer = document.getElementById("macro-prompt")
+            GM_setValue("promptX", promptContainer.style.left)
+            GM_setValue("promptY", promptContainer.style.top)
+            document.body.removeChild(promptContainer)
+        }
         showDatalistPrompt("Please select macro", macroArray)
-
     }
     function handleUrlChange() {
         boxCount = 0
