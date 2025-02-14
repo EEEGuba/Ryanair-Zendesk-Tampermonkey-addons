@@ -68,6 +68,21 @@ if (
     //the background color of the close button(default is "red")
     const closeButtonBackgroundColor = GM_getValue('closeButtonBackgroundColor', "red")
 
+    //the color of the drag bars present at the sides of the prompt box (default is dark grey "#193818")
+    const settingsColor = GM_getValue('settingsColor', "#056b00")
+    //the button1Color is the background color of the respective button
+    const button1Color = GM_getValue('button1Color', "#056b00")
+    //the button2Color is the background color of the respective button
+    const button2Color = GM_getValue('button2Color', "#056b00")
+    //the button3Color is the background color of the respective button
+    const button3Color = GM_getValue('button3Color', "#056b00")
+    //the button4Color is the background color of the respective button
+    const button4Color = GM_getValue('button4Color', "#056b00")
+    //the button5Color is the background color of the respective button
+    const button5Color = GM_getValue('button5Color', "#056b00")
+    //the button6Color is the background color of the respective button
+    const button6Color = GM_getValue('button6Color', "#056b00")
+
     //button 1 title and contents to copy
     const button1Title = "test 1 of button"
     const button1Content = "this is button nr 1 AUUGH test moment \n\n aaaa 17962498"
@@ -238,10 +253,207 @@ if (
         }
     }
     //heavy wip
+
     function handleSettingsMenu() {
+        // Function to calculate luminance of a color
+        function getLuminance(color) {
+            // If the color is in hex format (e.g., #056b00)
+            if (color.startsWith("#")) {
+                // Remove the hash, and ensure it has 6 characters
+                color = color.substring(1);
+                if (color.length === 3) {
+                    color = color.split("").map(c => c + c).join(""); // e.g., "056" -> "005566"
+                }
+
+                // Convert hex to RGB
+                const r = parseInt(color.substring(0, 2), 16);
+                const g = parseInt(color.substring(2, 4), 16);
+                const b = parseInt(color.substring(4, 6), 16);
+
+                return luminanceFormula(r, g, b); // Apply luminance formula
+            }
+
+            // If the color is in RGB format (e.g., rgb(56, 56, 56))
+            if (color.startsWith("rgb")) {
+                const rgb = color.match(/\d+/g); // Extract RGB values
+                const r = parseInt(rgb[0]);
+                const g = parseInt(rgb[1]);
+                const b = parseInt(rgb[2]);
+
+                return luminanceFormula(r, g, b); // Apply luminance formula
+            }
+
+            // If the color is an unexpected format, return 0 as default luminance
+            return 0;
+        }
+
+        // Helper function to calculate luminance based on RGB values
+        function luminanceFormula(r, g, b) {
+            const a = [r, g, b].map(function (v) {
+                v /= 255;
+                return (v <= 0.03928) ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+            });
+
+            return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722; // Luminance formula
+        }
+
+
+        // Function to adjust font color based on background
+        function adjustFontColor(backgroundColor) {
+            const luminance = getLuminance(backgroundColor);
+            console.log("Luminance:", luminance); // Check luminance value
+            console.log("Font color:", luminance < 0.5 ? "white" : "black"); // Check font color
+            return luminance < 0.5 ? "white" : "black";
+        }
+
         if (!isMenuOpen) {
             isMenuOpen = true
+            const settingsWindow = document.createElement("div");
+            const backgroundColor = GM_getValue('settingsColor', "#056b00"); // Get background color (example)
+            const fontColor = adjustFontColor(backgroundColor); // Adjust font color based on background
+            settingsWindow.id = "settings";
+            settingsWindow.style.position = "fixed";
+            settingsWindow.style.top = "50px";  // Adjusted for visibility
+            settingsWindow.style.left = '60px';
+            settingsWindow.style.backgroundColor = settingsColor;
+            settingsWindow.style.padding = "10px";
+            settingsWindow.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+            settingsWindow.style.zIndex = "9999";
+            settingsWindow.style.setProperty('color', fontColor, 'important');
+            settingsWindow.style.width = "300px";  // Adjust if necessary
+            settingsWindow.style.maxHeight = "80vh";  // Max height is 80% of the viewport height
+            settingsWindow.style.overflowY = "auto";  // Enable scrolling if the content exceeds max-height
+            settingsWindow.style.border = "1px solid #ccc";
+            settingsWindow.style.position = "relative";
+            settingsWindow.style.color = fontColor; // Apply dynamic font color
+
+
+            // Create the color input row for color settings
+            const colorSettings = document.createElement("div");
+            colorSettings.style.marginBottom = "20px"; // Space between rows
+
+            function createColorSetting(labelText, settingName, defaultValue) {
+                const settingDiv = document.createElement("div");
+                settingDiv.style.marginBottom = "10px";
+
+                const label = document.createElement("label");
+                label.textContent = labelText;
+
+                const input = document.createElement("input");
+                input.type = "color";
+                input.value = defaultValue; // Default color value
+
+                input.addEventListener("input", (e) => {
+                    GM_setValue(settingName, e.target.value); // Save the new value
+                });
+
+                settingDiv.appendChild(label);
+                settingDiv.appendChild(input);
+                return settingDiv;
+            }
+
+            // Color settings for background, font, drag bars, etc.
+            colorSettings.appendChild(createColorSetting("Background Color:", "backgroundColor", GM_getValue('backgroundColor', "#056b00")));
+            colorSettings.appendChild(createColorSetting("Font Color:", "fontColor", GM_getValue('fontColor', "white")));
+            colorSettings.appendChild(createColorSetting("Drag Bar Color:", "dragBarColor", GM_getValue('dragBarColor', "#193818")));
+            colorSettings.appendChild(createColorSetting("Options Background Color:", "optionsBackgroundColor", GM_getValue('optionsBackgroundColor', "white")));
+            colorSettings.appendChild(createColorSetting("Input Background Color:", "inputBackgroundColor", GM_getValue('inputBackgroundColor', "white")));
+            colorSettings.appendChild(createColorSetting("Close Button Background Color:", "closeButtonBackgroundColor", GM_getValue('closeButtonBackgroundColor', "red")));
+            colorSettings.appendChild(createColorSetting("Settings Color:", "settingsColor", GM_getValue('settingsColor', "#056b00")));
+
+            // Color settings for buttons
+            for (let i = 1; i <= 6; i++) {
+                colorSettings.appendChild(createColorSetting(`Button ${i} Background Color:`, `button${i}Color`, GM_getValue(`button${i}Color`, "#056b00")));
+            }
+
+            settingsWindow.appendChild(colorSettings);
+
+            // Create the title-input and content-input rows for each button
+            const buttonSettings = document.createElement("div");
+            buttonSettings.style.marginTop = "20px"; // Space before the title-content inputs
+
+            function createTitleContentPair(index, title, content) {
+                const pairContainer = document.createElement("div");
+                pairContainer.style.marginBottom = "15px";
+                pairContainer.classList.add('button-pair'); // Add class for selecting later
+
+                const titleLabel = document.createElement("label");
+                titleLabel.textContent = `Button ${index} Title: `;
+                const titleInput = document.createElement("input");
+                titleInput.type = "text";
+                titleInput.value = title;
+                titleInput.classList.add('button-title'); // Add class for selecting later
+
+                const contentLabel = document.createElement("label");
+                contentLabel.textContent = `Button ${index} Content: `;
+                const contentInput = document.createElement("textarea");
+                contentInput.value = content;
+                contentInput.classList.add('button-content'); // Add class for selecting later
+
+                titleInput.addEventListener("input", (e) => {
+                    GM_setValue(`button${index}Title`, e.target.value); // Save the new title
+                });
+
+                contentInput.addEventListener("input", (e) => {
+                    GM_setValue(`button${index}Content`, e.target.value); // Save the new content
+                });
+                pairContainer.appendChild(titleLabel);
+                pairContainer.appendChild(titleInput);
+                pairContainer.appendChild(contentLabel);
+                pairContainer.appendChild(contentInput);
+                return pairContainer;
+            }
+
+
+            // Button titles and contents for button1 to button6
+            buttonSettings.appendChild(createTitleContentPair(1, GM_getValue('button1Title', "test 1 of button"), GM_getValue('button1Content', "this is button nr 1 AUUGH test moment \n\n aaaa 17962498")));
+            buttonSettings.appendChild(createTitleContentPair(2, GM_getValue('button2Title', "btn2"), GM_getValue('button2Content', "this is button nr 2 AUUGH test moment \n\n aaaa 17962498")));
+            buttonSettings.appendChild(createTitleContentPair(3, GM_getValue('button3Title', "this right here is test 3 of button, amazing and lengthy description huh?"), GM_getValue('button3Content', "this is button nr 3 AUUGH test moment \n\n aaaa 17962498")));
+            buttonSettings.appendChild(createTitleContentPair(4, GM_getValue('button4Title', "test 4 of button"), GM_getValue('button4Content', "this is button nr 4 AUUGH test moment \n\n aaaa 17962498")));
+            buttonSettings.appendChild(createTitleContentPair(5, GM_getValue('button5Title', "test 5 of button"), GM_getValue('button5Content', "this is button nr 5 AUUGH test moment \n\n aaaa 17962498")));
+            buttonSettings.appendChild(createTitleContentPair(6, GM_getValue('button6Title', "test 6 of button"), GM_getValue('button6Content', "this is button nr 6 AUUGH test moment \n\n aaaa 17962498")));
+
+            settingsWindow.appendChild(buttonSettings);
+
+            // Append the settings window to the DOM
+            document.querySelector('[data-test-id="support_nav"]').appendChild(settingsWindow);
+
         }
+        else { document.getElementById("settings").remove(); isMenuOpen = false }
+        function save() {
+            // Loop through each color setting input and save the value
+            const colorInputs = document.querySelectorAll("input[type='color']");
+            colorInputs.forEach(input => {
+                const settingName = input.id; // Get the ID (matching the setting name)
+                const colorValue = input.value;
+                GM_setValue(settingName, colorValue); // Save to GM storage
+            });
+
+            // Loop through each title-input and content-input pair and save the values
+            const buttonPairs = document.querySelectorAll('.button-pair');
+            buttonPairs.forEach((pair, index) => {
+                const titleInput = pair.querySelector('.button-title');
+                const contentInput = pair.querySelector('.button-content');
+
+                const buttonTitle = titleInput.value;
+                const buttonContent = contentInput.value;
+
+                // Save to GM storage with appropriate keys
+                GM_setValue(`button${index + 1}Title`, buttonTitle);
+                GM_setValue(`button${index + 1}Content`, buttonContent);
+            });
+
+            alert("Settings saved!");
+        }
+
+        // Create Save Button
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Save Settings";
+        saveButton.style.marginTop = "20px";
+        saveButton.addEventListener("click", save);
+
+        // Add the save button to the settings window
+        settingsWindow.appendChild(saveButton);
     }
 
     function showDatalistPrompt(message, options) {
@@ -278,7 +490,7 @@ if (
             const smallTextContent = document.createElement('div')
             smallTextContent.textContent = 'Drag from the green bar to retrieve the macro box, drag it back here to hide it again'
             smallTextContent.style.position = 'fixed'
-            smallTextContent.style.top = '550px'
+            smallTextContent.style.top = '560px'
             smallTextContent.style.fontSize = '10px'
             sidebar.appendChild(smallTextContent)
             //sidebar.style.float = 'left'
@@ -290,13 +502,14 @@ if (
             sidebar.style.fontWeight = "bold";
             sidebar.style.cursor = "pointer";
             sidebar.style.position = "fixed";
-            sidebar.style.top = "345px";
+            sidebar.style.top = "355px";
             sidebar.style.width = "40px";
             sidebar.style.height = '310px'
             sidebar.style.display = 'flex';
             sidebar.style.justifyContent = 'center';
             sidebar.style.textAlign = 'center';
-            
+            sidebar.style.zIndex = "999";
+
             sidebar.addEventListener("mousedown", (e) => {
                 const promptBox = document.getElementById('macro-prompt')
                 lastX = e.clientX
@@ -317,66 +530,75 @@ if (
         settingsButton.style.backgroundSize = '40%'
         settingsButton.style.backgroundPosition = 'center';
         settingsButton.style.position = 'fixed'
-        settingsButton.style.top = '315px'
+        settingsButton.style.top = '325px'
         settingsButton.style.height = '30px'
         settingsButton.style.width = '60px'
+        settingsButton.style.zIndex = "999";
         settingsButton.addEventListener("mousedown", (e) => {
             e.stopPropagation(); // Prevent this event from bubbling up to the sidebar
             handleSettingsMenu();
         })
-        userButtonsContainer.style.backgroundColor = "rgba(255, 0, 0, 0.5)"
+        userButtonsContainer.style.backgroundColor = "rgba(255, 0, 0, 0)"
         //userButtonsContainer.style.backgroundSize = 'cover';
         //userButtonsContainer.style.backgroundRepeat = 'repeat-x';
         //userButtonsContainer.style.backgroundSize = '40%'
         //userButtonsContainer.style.backgroundPosition = 'center';
         userButtonsContainer.style.position = 'fixed'
-        userButtonsContainer.style.top = '655px'
+        userButtonsContainer.style.top = '665px'
         userButtonsContainer.style.height = '5000px'
         userButtonsContainer.style.width = '60px'
+        userButtonsContainer.style.zIndex = "999";
         sidebar.appendChild(settingsButton)
-        sidebar.appendChild(userButtonsContainer)
-       // Define a class for the user button
-       userButtonsContainer.addEventListener('click', (e) => {
-        e.stopPropagation();  // Prevent click event from bubbling up to sidebar
-        console.log('User button container clicked!');
-    });
-class UserButton {
-    constructor(title, content, color, fontColor) {
-        this.button = document.createElement("button");
-        this.button.textContent = title;
-        this.button.style.backgroundColor = color;
-        this.button.style.color = fontColor;
-        this.content = content;
-    }
-
-    // Method to set an arbitrary click handler
-    setClickHandler(callback) {
-        this.button.addEventListener("click", (e) => {
-            e.stopPropagation();  // Prevent the event from bubbling up to the parent
-            callback();  // Call the passed-in callback function
+        //document.appendChild(userButtonsContainer)
+        document.querySelector('[data-test-id="support_nav"]').appendChild(userButtonsContainer)
+        // Define a class for the user button
+        userButtonsContainer.addEventListener('click', (e) => {
+            // Prevent click event from bubbling up to sidebar
+            console.log('User button container clicked!');
         });
-    }
-}
+        class UserButton {
+            constructor(title, content, color, fontColor) {
+                this.button = document.createElement("button");
+                this.button.textContent = title;
+                this.button.style.backgroundColor = color;
+                this.button.style.color = fontColor;
+                this.content = content;
+                this.button.style.float = 'left'
+                this.button.style.border = "2px solid #000";
+                this.button.style.fontSize = '10px'
+                this.button.style.lineHeight = "1";
+                this.button.style.marginTop = '2px'; // Adds 2px space below each button
 
-// Simulate the GM_setValue data (assuming you have it elsewhere in code)
-GM_setValue("buttonList", [{title: "test1 N SHIET, this is a teeest", content: "this is test1, you may not like it but I don't either", color: "pink", fontColor: "green"}]);
+            }
 
-function createButtons() {
-    buttonList.forEach(element => {
-        const userBtn = new UserButton(element.title, element.content, element.color, element.fontColor);
-        // Define an arbitrary function to be called when the button is clicked
-        const clickFunction = () => {
-            alert(userBtn.content);  // Example: Show the button's content in an alert
-        };
+            // Method to set an arbitrary click handler
+            setClickHandler(callback) {
+                this.button.addEventListener("click", (e) => {
+                    // Prevent the event from bubbling up to the parent
+                    callback();  // Call the passed-in callback function
+                });
+            }
+        }
 
-        // Set the click handler to the arbitrary function
-        userBtn.setClickHandler(clickFunction);
+        // Simulate the GM_setValue data (assuming you have it elsewhere in code)
+        GM_setValue("buttonList", [{ title: "test1 N SHIET, this is a teeest, biiiiiiiib, biiiiiiib", content: "this is test1, you may not like it but I don't either", color: "pink", fontColor: "green" }, { title: "test2 N SHIET, this is a teeest", content: "this is test2, you may not like it but I don't either", color: "pink", fontColor: "green" }]);
 
-        userButtonsContainer.appendChild(userBtn.button); // Append the button element to the container
-    });
-}
+        function createButtons() {
+            buttonList.forEach(element => {
+                const userBtn = new UserButton(element.title, element.content, element.color, element.fontColor);
+                // Define an arbitrary function to be called when the button is clicked
+                const clickFunction = () => {
+                    alert(userBtn.content);  // Example: Show the button's content in an alert
+                };
 
-createButtons();
+                // Set the click handler to the arbitrary function
+                userBtn.setClickHandler(clickFunction);
+
+                userButtonsContainer.appendChild(userBtn.button); // Append the button element to the container
+            });
+        }
+
+        createButtons();
 
         //       const quickCopyButtonContainer = document.createElement('div')
         //               sidebar.appendChild(quickCopyButtonContainer);
