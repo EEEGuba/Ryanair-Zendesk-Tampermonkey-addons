@@ -15,38 +15,6 @@
 // @grant        GM_setValue
 // @grant        GM_listValues
 // ==/UserScript==
-
-//C O N F I G
-
-//change whatever you want in here, remember to save a working version first and make this a copy just in case
-//what works is replacing the part after the = sign with the color in quotations:
-//name of color ex. "blue";
-//hexcodes ex. "#056b00"
-//rgb ex. "rgb(155, 102, 102)"
-//save the code and reload zendesk to check if it works
-
-//the background color of messages and prompts(default is dark green "#056b00")
-const backgroundColor = "#056b00"
-
-//the color of the font of the messages and prompts(default is white "white")
-const fontColor = "white"
-
-//the color of the drag bars present at the sides of the prompt box (default is dark grey "#193818")
-const dragBarColor = "#193818"
-
-//the background color of the options in the list of macros(default is white "white")
-const optionsBackgroundColor = "white"
-
-//the background color of the search box(default is white "white")
-const inputBackgroundColor = "white"
-
-//the background color of the close button(default is "red")
-const closeButtonBackgroundColor = "red"
-
-//E N D   O F   C O N F I G
-
-
-
 if (
     window.location.href ==
     "https://app.smartsheet.com/sheets/qG3Jjrg3fVPXmRQgP9rHx2X6CjQhWCPCH2XRPQ51?view=grid"
@@ -72,6 +40,54 @@ if (
         }
     })()
 } else {
+    //C O N F I G
+
+    //change whatever you want in here, remember to save a working version first and make this a copy just in case
+
+    //what works is replacing the part after the = sign with the color in quotations:
+    //name of color ex. "blue";
+    //hexcodes ex. "#056b00"
+    //rgb ex. "rgb(155, 102, 102)"
+    //save the code and reload zendesk to check if it works
+
+    //the background color of messages and prompts(default is dark green "#056b00")
+    const backgroundColor = GM_getValue('backgroundColor', "#056b00")
+
+    //the color of the font of the messages and prompts(default is white "white")
+    const fontColor = GM_getValue('fontColor', "white")
+
+    //the color of the drag bars present at the sides of the prompt box (default is dark grey "#193818")
+    const dragBarColor = GM_getValue('dragBarColor', "#193818")
+
+    //the background color of the options in the list of macros(default is white "white")
+    const optionsBackgroundColor = GM_getValue('optionsBackgroundColor', "white")
+
+    //the background color of the search box(default is white "white")
+    const inputBackgroundColor = GM_getValue('inputBackgroundColor', "white")
+
+    //the background color of the close button(default is "red")
+    const closeButtonBackgroundColor = GM_getValue('closeButtonBackgroundColor', "red")
+
+    //button 1 title and contents to copy
+    const button1Title = "test 1 of button"
+    const button1Content = "this is button nr 1 AUUGH test moment \n\n aaaa 17962498"
+    //button 2 title and contents to copy
+    const button2Title = "btn2"
+    const button2Content = "this is button nr 2 AUUGH test moment \n\n aaaa 17962498"
+    //button 3 title and contents to copy
+    const button3Title = "this right here is test 3 of button, amazing and lengthy description huh?"
+    const button3Content = "this is button nr 3 AUUGH test moment \n\n aaaa 17962498"
+    //button 4 title and contents to copy
+    const button4Title = "test 4 of button"
+    const button4Content = "this is button nr 4 AUUGH test moment \n\n aaaa 17962498"
+    //button 5 title and contents to copy
+    const button5Title = "test 5 of button"
+    const button5Content = "this is button nr 5 AUUGH test moment \n\n aaaa 17962498"
+    //button 6 title and contents to copy
+    const button6Title = "test 6 of button"
+    const button6Content = "this is button nr 6 AUUGH test moment \n\n aaaa 17962498"
+
+    //E N D   O F   C O N F I G
     let isDraggedOut = undefined
     let isDragging = false;
     let isMacroContainerPresent = false
@@ -88,6 +104,7 @@ if (
     let macroArray = []
     let lastX, lastY
     let offsetX, offsetY;
+    let isMenuOpen = false
     function DataInsertStart() {
         titleArray = []
         contentArray = []
@@ -220,10 +237,17 @@ if (
             console.error(error) // Handle any errors (though in this case, it's unlikely)
         }
     }
+    //heavy wip
+    function handleSettingsMenu() {
+        if (!isMenuOpen) {
+            isMenuOpen = true
+        }
+    }
 
     function showDatalistPrompt(message, options) {
         const promptStartX = GM_getValue("promptX", false)
         const promptStartY = GM_getValue("promptY", false)
+        const buttonList = GM_getValue("buttonList", undefined)
         macroArray.sort((a, b) => b.relevancePoints - a.relevancePoints)
         let displayList = options
         isPromptBoxActive = true;
@@ -245,7 +269,8 @@ if (
         promptContainer.style.border = "1px solid #ccc";
         promptContainer.style.position = "relative";
         const sidebar = document.createElement("div");
-
+        const settingsButton = document.createElement("button")
+        const userButtonsContainer = document.createElement("div")
         if (!isMacroContainerPresent) {
             isMacroContainerPresent = true
             sidebar.id = 'sidebar'
@@ -253,7 +278,7 @@ if (
             const smallTextContent = document.createElement('div')
             smallTextContent.textContent = 'Drag from the green bar to retrieve the macro box, drag it back here to hide it again'
             smallTextContent.style.position = 'fixed'
-            smallTextContent.style.top = '520px'
+            smallTextContent.style.top = '550px'
             smallTextContent.style.fontSize = '10px'
             sidebar.appendChild(smallTextContent)
             //sidebar.style.float = 'left'
@@ -265,13 +290,13 @@ if (
             sidebar.style.fontWeight = "bold";
             sidebar.style.cursor = "pointer";
             sidebar.style.position = "fixed";
-            sidebar.style.top = "315px";
+            sidebar.style.top = "345px";
             sidebar.style.width = "40px";
             sidebar.style.height = '310px'
             sidebar.style.display = 'flex';
             sidebar.style.justifyContent = 'center';
             sidebar.style.textAlign = 'center';
-
+            
             sidebar.addEventListener("mousedown", (e) => {
                 const promptBox = document.getElementById('macro-prompt')
                 lastX = e.clientX
@@ -286,6 +311,73 @@ if (
             });
             document.querySelector('[data-test-id="support_nav"]').appendChild(sidebar)
         }
+        settingsButton.style.backgroundImage = 'url(https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/refs/heads/main/Custom%20synced%20macros/settings%20button%20icon.png)';
+        settingsButton.style.backgroundSize = 'cover';
+        settingsButton.style.backgroundRepeat = 'repeat-x';
+        settingsButton.style.backgroundSize = '40%'
+        settingsButton.style.backgroundPosition = 'center';
+        settingsButton.style.position = 'fixed'
+        settingsButton.style.top = '315px'
+        settingsButton.style.height = '30px'
+        settingsButton.style.width = '60px'
+        settingsButton.addEventListener("mousedown", (e) => {
+            e.stopPropagation(); // Prevent this event from bubbling up to the sidebar
+            handleSettingsMenu();
+        })
+        userButtonsContainer.style.backgroundColor = "rgba(255, 0, 0, 0.5)"
+        //userButtonsContainer.style.backgroundSize = 'cover';
+        //userButtonsContainer.style.backgroundRepeat = 'repeat-x';
+        //userButtonsContainer.style.backgroundSize = '40%'
+        //userButtonsContainer.style.backgroundPosition = 'center';
+        userButtonsContainer.style.position = 'fixed'
+        userButtonsContainer.style.top = '655px'
+        userButtonsContainer.style.height = '5000px'
+        userButtonsContainer.style.width = '60px'
+        sidebar.appendChild(settingsButton)
+        sidebar.appendChild(userButtonsContainer)
+       // Define a class for the user button
+       userButtonsContainer.addEventListener('click', (e) => {
+        e.stopPropagation();  // Prevent click event from bubbling up to sidebar
+        console.log('User button container clicked!');
+    });
+class UserButton {
+    constructor(title, content, color, fontColor) {
+        this.button = document.createElement("button");
+        this.button.textContent = title;
+        this.button.style.backgroundColor = color;
+        this.button.style.color = fontColor;
+        this.content = content;
+    }
+
+    // Method to set an arbitrary click handler
+    setClickHandler(callback) {
+        this.button.addEventListener("click", (e) => {
+            e.stopPropagation();  // Prevent the event from bubbling up to the parent
+            callback();  // Call the passed-in callback function
+        });
+    }
+}
+
+// Simulate the GM_setValue data (assuming you have it elsewhere in code)
+GM_setValue("buttonList", [{title: "test1 N SHIET, this is a teeest", content: "this is test1, you may not like it but I don't either", color: "pink", fontColor: "green"}]);
+
+function createButtons() {
+    buttonList.forEach(element => {
+        const userBtn = new UserButton(element.title, element.content, element.color, element.fontColor);
+        // Define an arbitrary function to be called when the button is clicked
+        const clickFunction = () => {
+            alert(userBtn.content);  // Example: Show the button's content in an alert
+        };
+
+        // Set the click handler to the arbitrary function
+        userBtn.setClickHandler(clickFunction);
+
+        userButtonsContainer.appendChild(userBtn.button); // Append the button element to the container
+    });
+}
+
+createButtons();
+
         //       const quickCopyButtonContainer = document.createElement('div')
         //               sidebar.appendChild(quickCopyButtonContainer);
 
@@ -353,28 +445,7 @@ if (
             isDragging = true;
             document.body.style.userSelect = "none"; // Prevent text selection while dragging
         });
-        document.addEventListener("mousemove", (e) => {
-            if (isDragging) {
-                //console.log('x',promptContainer.style.left,lastX,e.clientX,'y',promptContainer.style.top,lastY,e.clientY)
-                promptContainer.style.left = `${parseInt(promptContainer.style.left) - (lastX - e.clientX)}px`;
-                lastX = e.clientX
-                promptContainer.style.top = `${parseInt(promptContainer.style.top) - (lastY - e.clientY)}px`;
-                lastY = e.clientY
-            }
-        });
 
-        document.addEventListener("mouseup", (e) => {
-            const targetRect = sidebar.getBoundingClientRect();
-            if (e.clientX >= targetRect.left && e.clientX <= targetRect.right &&
-                e.clientY >= targetRect.top && e.clientY <= targetRect.bottom && isDragging) {
-                ; promptContainer.style.left = '-500px'; promptContainer.style.top = '-500px'; setTimeout(() => {
-                    GM_setValue("promptX", promptContainer.style.left)
-                    GM_setValue("promptY", promptContainer.style.top)
-                }, 100);
-            }
-            isDragging = false;
-            document.body.style.userSelect = "auto"; // Restore text selection
-        });
         rightBar.addEventListener("mouseup", () => {
             GM_setValue("promptX", promptContainer.style.left)
             GM_setValue("promptY", promptContainer.style.top)
@@ -861,5 +932,31 @@ if (
         }
     }
     document.addEventListener('keydown', handleKeyPress);
+
+    document.addEventListener("mousemove", (e) => {
+        if (isDragging) {
+            const promptContainer = document.getElementById("macro-prompt")
+            promptContainer.style.left = `${parseInt(promptContainer.style.left) - (lastX - e.clientX)}px`;
+            lastX = e.clientX
+            promptContainer.style.top = `${parseInt(promptContainer.style.top) - (lastY - e.clientY)}px`;
+            lastY = e.clientY
+        }
+    });
+
+    document.addEventListener("mouseup", (e) => {
+        const promptContainer = document.getElementById("macro-prompt")
+        const targetRect = document.getElementById('sidebar').getBoundingClientRect();
+        if (e.clientX >= targetRect.left && e.clientX <= targetRect.right &&
+            e.clientY >= targetRect.top && e.clientY <= targetRect.bottom && isDragging) {
+            ; promptContainer.style.left = '-500px'; promptContainer.style.top = '-500px'; setTimeout(() => {
+                GM_setValue("promptX", promptContainer.style.left)
+                GM_setValue("promptY", promptContainer.style.top)
+            }, 100);
+        }
+        isDragging = false;
+        document.body.style.userSelect = "auto"; // Restore text selection
+    });
+
+
 
 }
