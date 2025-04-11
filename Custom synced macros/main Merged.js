@@ -68,39 +68,8 @@ if (
     //the background color of the close button(default is "red")
     const closeButtonBackgroundColor = GM_getValue('closeButtonBackgroundColor', "red")
 
-    //the color of the drag bars present at the sides of the prompt box (default is dark grey "#193818")
-    const settingsColor = GM_getValue('settingsColor', "#056b00")
-    //the button1Color is the background color of the respective button
-    const button1Color = GM_getValue('button1Color', "#056b00")
-    //the button2Color is the background color of the respective button
-    const button2Color = GM_getValue('button2Color', "#056b00")
-    //the button3Color is the background color of the respective button
-    const button3Color = GM_getValue('button3Color', "#056b00")
-    //the button4Color is the background color of the respective button
-    const button4Color = GM_getValue('button4Color', "#056b00")
-    //the button5Color is the background color of the respective button
-    const button5Color = GM_getValue('button5Color', "#056b00")
-    //the button6Color is the background color of the respective button
-    const button6Color = GM_getValue('button6Color', "#056b00")
-
-    //button 1 title and contents to copy
-    const button1Title = "test 1 of button"
-    const button1Content = "this is button nr 1 AUUGH test moment \n\n aaaa 17962498"
-    //button 2 title and contents to copy
-    const button2Title = "btn2"
-    const button2Content = "this is button nr 2 AUUGH test moment \n\n aaaa 17962498"
-    //button 3 title and contents to copy
-    const button3Title = "this right here is test 3 of button, amazing and lengthy description huh?"
-    const button3Content = "this is button nr 3 AUUGH test moment \n\n aaaa 17962498"
-    //button 4 title and contents to copy
-    const button4Title = "test 4 of button"
-    const button4Content = "this is button nr 4 AUUGH test moment \n\n aaaa 17962498"
-    //button 5 title and contents to copy
-    const button5Title = "test 5 of button"
-    const button5Content = "this is button nr 5 AUUGH test moment \n\n aaaa 17962498"
-    //button 6 title and contents to copy
-    const button6Title = "test 6 of button"
-    const button6Content = "this is button nr 6 AUUGH test moment \n\n aaaa 17962498"
+   //the color of the drag bars present at the sides of the prompt box (default is grey "#D1D1D1")
+   const settingsColor = "#D1D1D1"
 
     //E N D   O F   C O N F I G
     let isDraggedOut = undefined
@@ -255,74 +224,72 @@ if (
     //heavy wip
 
     function handleSettingsMenu() {
+        const settingsWindow = document.createElement("div");
         // Function to calculate luminance of a color
-        function getLuminance(color) {
-            // If the color is in hex format (e.g., #056b00)
-            if (color.startsWith("#")) {
-                // Remove the hash, and ensure it has 6 characters
-                color = color.substring(1);
-                if (color.length === 3) {
-                    color = color.split("").map(c => c + c).join(""); // e.g., "056" -> "005566"
-                }
+        //       function getLuminance(color) {
+        //           // If the color is in hex format (e.g., #056b00)
+        //           if (color.startsWith("#")) {
+        //               // Remove the hash, and ensure it has 6 characters
+        //               color = color.substring(1);
+        //               if (color.length === 3) {
+        //                   color = color.split("").map(c => c + c).join(""); // e.g., "056" -> "005566"
+        //               }
 
-                // Convert hex to RGB
-                const r = parseInt(color.substring(0, 2), 16);
-                const g = parseInt(color.substring(2, 4), 16);
-                const b = parseInt(color.substring(4, 6), 16);
+        //               // Convert hex to RGB
+        //               const r = parseInt(color.substring(0, 2), 16);
+        //               const g = parseInt(color.substring(2, 4), 16);
+        //               const b = parseInt(color.substring(4, 6), 16);
 
-                return luminanceFormula(r, g, b); // Apply luminance formula
-            }
+        //               return luminanceFormula(r, g, b); // Apply luminance formula
+        //           }
 
-            // If the color is in RGB format (e.g., rgb(56, 56, 56))
-            if (color.startsWith("rgb")) {
-                const rgb = color.match(/\d+/g); // Extract RGB values
-                const r = parseInt(rgb[0]);
-                const g = parseInt(rgb[1]);
-                const b = parseInt(rgb[2]);
+        //           // If the color is in RGB format (e.g., rgb(56, 56, 56))
+        //           if (color.startsWith("rgb")) {
+        //               const rgb = color.match(/\d+/g); // Extract RGB values
+        //               const r = parseInt(rgb[0]);
+        //               const g = parseInt(rgb[1]);
+        //               const b = parseInt(rgb[2]);
 
-                return luminanceFormula(r, g, b); // Apply luminance formula
-            }
+        //               return luminanceFormula(r, g, b); // Apply luminance formula
+        //           }
 
-            // If the color is an unexpected format, return 0 as default luminance
-            return 0;
-        }
+        //           // If the color is an unexpected format, return 0 as default luminance
+        //           return 0;
+        //       }
 
-        // Helper function to calculate luminance based on RGB values
-        function luminanceFormula(r, g, b) {
-            const a = [r, g, b].map(function (v) {
-                v /= 255;
-                return (v <= 0.03928) ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-            });
+        //       // Helper function to calculate luminance based on RGB values
+        //       function luminanceFormula(r, g, b) {
+        //           console.log('aaaaa')
+        //           const a = [r, g, b].map(function (v) {
+        //               v /= 255;
+        //               return (v <= 0.03928) ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+        //           });
 
-            return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722; // Luminance formula
-        }
+        //           return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722; // Luminance formula
+        //       }
 
 
         // Function to adjust font color based on background
-        function adjustFontColor(backgroundColor) {
-            const luminance = getLuminance(backgroundColor);
-            console.log("Luminance:", luminance); // Check luminance value
-            console.log("Font color:", luminance < 0.5 ? "white" : "black"); // Check font color
-            return luminance < 0.5 ? "white" : "black";
-        }
+        //function adjustFontColor(backgroundColor) {
+        //    const luminance = getLuminance(backgroundColor);
+        //    console.log("Luminance:", luminance); // Check luminance value
+        //    console.log("Font color:", luminance < 0.5 ? "white" : "black"); // Check font color
+        //    return luminance < 0.5 ? "white" : "black";
+        //}
 
         if (!isMenuOpen) {
             isMenuOpen = true
-            const settingsWindow = document.createElement("div");
-            const backgroundColor = GM_getValue('settingsColor', "#056b00"); // Get background color (example)
-            const fontColor = adjustFontColor(backgroundColor); // Adjust font color based on background
             settingsWindow.id = "settings";
             settingsWindow.style.position = "fixed";
-            settingsWindow.style.top = "50px";  // Adjusted for visibility
+            settingsWindow.style.top = '-200px'; // Adjusted for visibility
             settingsWindow.style.left = '60px';
             settingsWindow.style.backgroundColor = settingsColor;
             settingsWindow.style.padding = "10px";
             settingsWindow.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
             settingsWindow.style.zIndex = "9999";
-            settingsWindow.style.setProperty('color', fontColor, 'important');
-            settingsWindow.style.width = "300px";  // Adjust if necessary
-            settingsWindow.style.maxHeight = "80vh";  // Max height is 80% of the viewport height
-            settingsWindow.style.overflowY = "auto";  // Enable scrolling if the content exceeds max-height
+            settingsWindow.style.width = "50vw"; // Adjust if necessary
+            settingsWindow.style.maxHeight = "95vh"; // Max height is 80% of the viewport height
+            settingsWindow.style.overflowY = "auto"; // Enable scrolling if the content exceeds max-height
             settingsWindow.style.border = "1px solid #ccc";
             settingsWindow.style.position = "relative";
             settingsWindow.style.color = fontColor; // Apply dynamic font color
@@ -351,7 +318,19 @@ if (
                 settingDiv.appendChild(input);
                 return settingDiv;
             }
-
+            let inputDiv = document.createElement('div')
+            let inputTitle = document.createElement('label')
+            inputTitle.innerText = 'Button Amount'
+            let buttonAmountInput = document.createElement('input')
+            buttonAmountInput.type = 'number'
+            buttonAmountInput.min = '0'
+            buttonAmountInput.max = '100'
+            buttonAmountInput.value = GM_getValue('buttonAmount', 6)
+            buttonAmountInput.id = 'buttonAmountInput'
+            buttonAmountInput.style.width = '40px'
+            buttonAmountInput.addEventListener("input", (e) => { GM_setValue('buttonAmount', buttonAmountInput.value) });
+            inputDiv.appendChild(inputTitle)
+            inputDiv.appendChild(buttonAmountInput)
             // Color settings for background, font, drag bars, etc.
             colorSettings.appendChild(createColorSetting("Background Color:", "backgroundColor", GM_getValue('backgroundColor', "#056b00")));
             colorSettings.appendChild(createColorSetting("Font Color:", "fontColor", GM_getValue('fontColor', "white")));
@@ -359,23 +338,26 @@ if (
             colorSettings.appendChild(createColorSetting("Options Background Color:", "optionsBackgroundColor", GM_getValue('optionsBackgroundColor', "white")));
             colorSettings.appendChild(createColorSetting("Input Background Color:", "inputBackgroundColor", GM_getValue('inputBackgroundColor', "white")));
             colorSettings.appendChild(createColorSetting("Close Button Background Color:", "closeButtonBackgroundColor", GM_getValue('closeButtonBackgroundColor', "red")));
-            colorSettings.appendChild(createColorSetting("Settings Color:", "settingsColor", GM_getValue('settingsColor', "#056b00")));
-
-            // Color settings for buttons
-            for (let i = 1; i <= 6; i++) {
-                colorSettings.appendChild(createColorSetting(`Button ${i} Background Color:`, `button${i}Color`, GM_getValue(`button${i}Color`, "#056b00")));
-            }
-
+            colorSettings.appendChild(inputDiv);
             settingsWindow.appendChild(colorSettings);
 
             // Create the title-input and content-input rows for each button
             const buttonSettings = document.createElement("div");
             buttonSettings.style.marginTop = "20px"; // Space before the title-content inputs
-
+            let buttonAmount = GM_getValue('buttonAmount', 6)
+            for (let i = 1; i <= buttonAmount; i++) {
+                buttonSettings.appendChild(createTitleContentPair(i, GM_getValue(`button${i}Title`, "input title"), GM_getValue(`button${i}Content`, "input contents")));
+            }
             function createTitleContentPair(index, title, content) {
+
                 const pairContainer = document.createElement("div");
-                pairContainer.style.marginBottom = "15px";
+                pairContainer.id = `pairContainer${index}`
+                pairContainer.style.marginBottom = "5px";
+                pairContainer.style.marginRight = '5px'
+                pairContainer.style.float = 'left'
                 pairContainer.classList.add('button-pair'); // Add class for selecting later
+                pairContainer.appendChild(createColorSetting(`Button ${index} Background Color:`, `button${index}Color`, GM_getValue(`button${index}Color`, "#056b00")));
+                pairContainer.appendChild(createColorSetting(`Button ${index} Font Color:`, `button${index}fontColor`, GM_getValue(`button${index}fontColor`, "black")));
 
                 const titleLabel = document.createElement("label");
                 titleLabel.textContent = `Button ${index} Title: `;
@@ -406,13 +388,6 @@ if (
 
 
             // Button titles and contents for button1 to button6
-            buttonSettings.appendChild(createTitleContentPair(1, GM_getValue('button1Title', "test 1 of button"), GM_getValue('button1Content', "this is button nr 1 AUUGH test moment \n\n aaaa 17962498")));
-            buttonSettings.appendChild(createTitleContentPair(2, GM_getValue('button2Title', "btn2"), GM_getValue('button2Content', "this is button nr 2 AUUGH test moment \n\n aaaa 17962498")));
-            buttonSettings.appendChild(createTitleContentPair(3, GM_getValue('button3Title', "this right here is test 3 of button, amazing and lengthy description huh?"), GM_getValue('button3Content', "this is button nr 3 AUUGH test moment \n\n aaaa 17962498")));
-            buttonSettings.appendChild(createTitleContentPair(4, GM_getValue('button4Title', "test 4 of button"), GM_getValue('button4Content', "this is button nr 4 AUUGH test moment \n\n aaaa 17962498")));
-            buttonSettings.appendChild(createTitleContentPair(5, GM_getValue('button5Title', "test 5 of button"), GM_getValue('button5Content', "this is button nr 5 AUUGH test moment \n\n aaaa 17962498")));
-            buttonSettings.appendChild(createTitleContentPair(6, GM_getValue('button6Title', "test 6 of button"), GM_getValue('button6Content', "this is button nr 6 AUUGH test moment \n\n aaaa 17962498")));
-
             settingsWindow.appendChild(buttonSettings);
 
             // Append the settings window to the DOM
@@ -420,40 +395,40 @@ if (
 
         }
         else { document.getElementById("settings").remove(); isMenuOpen = false }
-        function save() {
-            // Loop through each color setting input and save the value
-            const colorInputs = document.querySelectorAll("input[type='color']");
-            colorInputs.forEach(input => {
-                const settingName = input.id; // Get the ID (matching the setting name)
-                const colorValue = input.value;
-                GM_setValue(settingName, colorValue); // Save to GM storage
-            });
+        //        function resetSettings() {
+        //      // Loop through each color setting input and save the value
+        //      const colorInputs = document.querySelectorAll("input[type='color']");
+        //      colorInputs.forEach(input => {
+        //          const settingName = input.id; // Get the ID (matching the setting name)
+        //          const colorValue = input.value;
+        //          GM_setValue(settingName, colorValue); // Save to GM storage
+        //      });
 
-            // Loop through each title-input and content-input pair and save the values
-            const buttonPairs = document.querySelectorAll('.button-pair');
-            buttonPairs.forEach((pair, index) => {
-                const titleInput = pair.querySelector('.button-title');
-                const contentInput = pair.querySelector('.button-content');
+        //      // Loop through each title-input and content-input pair and save the values
+        //      const buttonPairs = document.querySelectorAll('.button-pair');
+        //      buttonPairs.forEach((pair, index) => {
+        //          const titleInput = pair.querySelector('.button-title');
+        //          const contentInput = pair.querySelector('.button-content');
 
-                const buttonTitle = titleInput.value;
-                const buttonContent = contentInput.value;
+        //          const buttonTitle = titleInput.value;
+        //          const buttonContent = contentInput.value;
 
-                // Save to GM storage with appropriate keys
-                GM_setValue(`button${index + 1}Title`, buttonTitle);
-                GM_setValue(`button${index + 1}Content`, buttonContent);
-            });
+        //          // Save to GM storage with appropriate keys
+        //          GM_setValue(`button${index + 1}Title`, buttonTitle);
+        //          GM_setValue(`button${index + 1}Content`, buttonContent);
+        //      });
 
-            alert("Settings saved!");
-        }
+        //      alert("Settings saved!");
+        //        }
 
         // Create Save Button
-        const saveButton = document.createElement("button");
-        saveButton.textContent = "Save Settings";
-        saveButton.style.marginTop = "20px";
-        saveButton.addEventListener("click", save);
+        //const resetButton = document.createElement("button");
+        //resetButton.textContent = "Reset Color Settings";
+        //resetButton.style.marginTop = "20px";
+        //resetButton.addEventListener("click", resetSettings);
 
         // Add the save button to the settings window
-        settingsWindow.appendChild(saveButton);
+        //settingsWindow.appendChild(resetButton);
     }
 
     function showDatalistPrompt(message, options) {
@@ -545,8 +520,9 @@ if (
         //userButtonsContainer.style.backgroundPosition = 'center';
         userButtonsContainer.style.position = 'fixed'
         userButtonsContainer.style.top = '665px'
-        userButtonsContainer.style.height = '5000px'
-        userButtonsContainer.style.width = '60px'
+        userButtonsContainer.style.height = `${window.innerHeight-665}px`
+        userButtonsContainer.style.width = '70px'
+        userButtonsContainer.style.overflow = 'scroll'
         userButtonsContainer.style.zIndex = "999";
         sidebar.appendChild(settingsButton)
         //document.appendChild(userButtonsContainer)
@@ -568,34 +544,38 @@ if (
                 this.button.style.fontSize = '10px'
                 this.button.style.lineHeight = "1";
                 this.button.style.marginTop = '2px'; // Adds 2px space below each button
-
+                this.button.style.maxWidth = '60px'
+                this.button.width='100%'
+                this.button.style.maxHeight = '160px'
+                this.button.minHeight = '60px'
             }
 
             // Method to set an arbitrary click handler
             setClickHandler(callback) {
                 this.button.addEventListener("click", (e) => {
                     // Prevent the event from bubbling up to the parent
-                    callback();  // Call the passed-in callback function
+                    callback(); // Call the passed-in callback function
                 });
             }
         }
 
         // Simulate the GM_setValue data (assuming you have it elsewhere in code)
-        GM_setValue("buttonList", [{ title: "test1 N SHIET, this is a teeest, biiiiiiiib, biiiiiiib", content: "this is test1, you may not like it but I don't either", color: "pink", fontColor: "green" }, { title: "test2 N SHIET, this is a teeest", content: "this is test2, you may not like it but I don't either", color: "pink", fontColor: "green" }]);
+        //GM_setValue("buttonList", [{ title: "test1 N SHIET, this is a teeest, biiiiiiiib, biiiiiiib", content: "this is test1, you may not like it but I don't either", color: "pink", fontColor: "green" }]);
 
         function createButtons() {
-            buttonList.forEach(element => {
-                const userBtn = new UserButton(element.title, element.content, element.color, element.fontColor);
+            for (let i = 1; i <= GM_getValue('buttonAmount',0); i++) {
+                const userBtn = new UserButton(GM_getValue(`button${i}Title`,'placeholder title'), GM_getValue(`button${i}Content`, "placeholder contents"), GM_getValue(`button${i}Color`,'green'), GM_getValue(`button${i}fontColor`,'white'));
                 // Define an arbitrary function to be called when the button is clicked
                 const clickFunction = () => {
-                    alert(userBtn.content);  // Example: Show the button's content in an alert
+                    alert(userBtn.content); // Example: Show the button's content in an alert
                 };
+
 
                 // Set the click handler to the arbitrary function
                 userBtn.setClickHandler(clickFunction);
 
                 userButtonsContainer.appendChild(userBtn.button); // Append the button element to the container
-            });
+            };
         }
 
         createButtons();
