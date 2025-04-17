@@ -93,10 +93,14 @@ if (
         titleArray = []
         contentArray = []
         keywordArray = []
+        //WIP
+        if(GM_getValue('recentOpenTime',1)<=Date.now()-60000){
         GM_openInTab(
             "https://app.smartsheet.com/sheets/qG3Jjrg3fVPXmRQgP9rHx2X6CjQhWCPCH2XRPQ51?view=grid",
             { loadInBackground: true, insert: true },
         )
+            GM_setValue('recentOpenTime',Date.now())
+        }
         setTimeout(() => {
             sheetData = GM_getValue("sheetData", undefined)
             const matches = Array.from(
@@ -519,18 +523,18 @@ if (
         //userButtonsContainer.style.backgroundSize = '40%'
         //userButtonsContainer.style.backgroundPosition = 'center';
         userButtonsContainer.style.position = 'fixed'
-        userButtonsContainer.style.top = '665px'
+        userButtonsContainer.style.top = '670px'
+        userButtonsContainer.style.left = '-5px'
         userButtonsContainer.style.height = `${window.innerHeight-665}px`
-        userButtonsContainer.style.width = '70px'
+        userButtonsContainer.style.width = '80px'
         userButtonsContainer.style.overflow = 'scroll'
         userButtonsContainer.style.zIndex = "999";
         sidebar.appendChild(settingsButton)
         //document.appendChild(userButtonsContainer)
         document.querySelector('[data-test-id="support_nav"]').appendChild(userButtonsContainer)
-        // Define a class for the user button
         userButtonsContainer.addEventListener('click', (e) => {
-            // Prevent click event from bubbling up to sidebar
-            console.log('User button container clicked!');
+            // this is here to prevent click event from bubbling up to sidebar
+
         });
         class UserButton {
             constructor(title, content, color, fontColor) {
@@ -545,9 +549,9 @@ if (
                 this.button.style.lineHeight = "1";
                 this.button.style.marginTop = '2px'; // Adds 2px space below each button
                 this.button.style.maxWidth = '60px'
-                this.button.width='100%'
+                this.button.style.width='100%'
                 this.button.style.maxHeight = '160px'
-                this.button.minHeight = '60px'
+                this.button.style.minHeight = '40px'
             }
 
             // Method to set an arbitrary click handler
@@ -560,14 +564,25 @@ if (
         }
 
         // Simulate the GM_setValue data (assuming you have it elsewhere in code)
-        //GM_setValue("buttonList", [{ title: "test1 N SHIET, this is a teeest, biiiiiiiib, biiiiiiib", content: "this is test1, you may not like it but I don't either", color: "pink", fontColor: "green" }]);
+        //GM_setValue("buttonList", [{ title: "test1", content: "this is test1, you may not like it but I don't either", color: "pink", fontColor: "green" }]);
 
         function createButtons() {
             for (let i = 1; i <= GM_getValue('buttonAmount',0); i++) {
-                const userBtn = new UserButton(GM_getValue(`button${i}Title`,'placeholder title'), GM_getValue(`button${i}Content`, "placeholder contents"), GM_getValue(`button${i}Color`,'green'), GM_getValue(`button${i}fontColor`,'white'));
+                const userBtn = new UserButton(GM_getValue(`button${i}Title`,'placeholder title'), GM_getValue(`button${i}Content`, "placeholder contents"), GM_getValue(`button${i}Color`,'green'), GM_getValue(`button${i}fontColor`,'black'));
                 // Define an arbitrary function to be called when the button is clicked
                 const clickFunction = () => {
-                    alert(userBtn.content); // Example: Show the button's content in an alert
+                    const originalBackgroundColor = userBtn.button.style.backgroundColor
+                    const originalFontColor = userBtn.button.style.color
+                    setTimeout(() => {
+                        userBtn.button.style.border = "2px solid #000000";
+                        //userBtn.button.style.backgroundColor = originalBackgroundColor
+                        userBtn.button.style.color = originalFontColor
+                    }, 100);
+                    userBtn.button.style.border = "2px solid #ffffff";
+                    //userBtn.button.style.backgroundColor = 'black'
+                    userBtn.button.style.color = 'white'
+                    navigator.clipboard.writeText(userBtn.content)
+                    createMessageBox('Copied button\n' + userBtn.button.textContent.toString() + '\n to clipboard',2000)
                 };
 
 
