@@ -361,7 +361,7 @@ if (
                 pairContainer.style.float = 'left'
                 pairContainer.classList.add('button-pair'); // Add class for selecting later
                 pairContainer.appendChild(createColorSetting(`Button ${index} Background Color:`, `button${index}Color`, GM_getValue(`button${index}Color`, "#056b00")));
-                pairContainer.appendChild(createColorSetting(`Button ${index} Font Color:`, `button${index}fontColor`, GM_getValue(`button${index}fontColor`, "black")));
+                pairContainer.appendChild(createColorSetting(`Button ${index} Font Color:`, `button${index}fontColor`, GM_getValue(`button${index}fontColor`, "white")));
 
                 const titleLabel = document.createElement("label");
                 titleLabel.textContent = `Button ${index} Title: `;
@@ -524,10 +524,11 @@ if (
         //userButtonsContainer.style.backgroundPosition = 'center';
         userButtonsContainer.style.position = 'fixed'
         userButtonsContainer.style.top = '670px'
-        userButtonsContainer.style.left = '-5px'
+        userButtonsContainer.style.left = '-1px'
         userButtonsContainer.style.height = `${window.innerHeight-665}px`
         userButtonsContainer.style.width = '80px'
-        userButtonsContainer.style.overflow = 'scroll'
+        userButtonsContainer.style.overflowY = 'auto'
+        userButtonsContainer.style.overflowX = 'hidden'
         userButtonsContainer.style.zIndex = "999";
         sidebar.appendChild(settingsButton)
         //document.appendChild(userButtonsContainer)
@@ -542,10 +543,11 @@ if (
                 this.button.textContent = title;
                 this.button.style.backgroundColor = color;
                 this.button.style.color = fontColor;
+                this.button.style.textAllign = 'center'
                 this.content = content;
                 this.button.style.float = 'left'
                 this.button.style.border = "2px solid #000";
-                this.button.style.fontSize = '10px'
+                this.button.style.fontSize = '12px'
                 this.button.style.lineHeight = "1";
                 this.button.style.marginTop = '2px'; // Adds 2px space below each button
                 this.button.style.maxWidth = '60px'
@@ -568,7 +570,7 @@ if (
 
         function createButtons() {
             for (let i = 1; i <= GM_getValue('buttonAmount',0); i++) {
-                const userBtn = new UserButton(GM_getValue(`button${i}Title`,'placeholder title'), GM_getValue(`button${i}Content`, "placeholder contents"), GM_getValue(`button${i}Color`,'green'), GM_getValue(`button${i}fontColor`,'black'));
+                const userBtn = new UserButton(GM_getValue(`button${i}Title`,'input title'), GM_getValue(`button${i}Content`, "placeholder contents"), GM_getValue(`button${i}Color`,'green'), GM_getValue(`button${i}fontColor`,'white'));
                 // Define an arbitrary function to be called when the button is clicked
                 const clickFunction = () => {
                     const originalBackgroundColor = userBtn.button.style.backgroundColor
