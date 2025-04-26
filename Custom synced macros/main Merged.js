@@ -70,7 +70,7 @@ if (
 
    //the color of the drag bars present at the sides of the prompt box (default is grey "#D1D1D1")
    const settingsColor = "#D1D1D1"
-
+   const settingsButtonColor = GM_getValue('settingsButtonColor', "#D8DCDE")
     //E N D   O F   C O N F I G
     let isDraggedOut = undefined
     let isDragging = false;
@@ -302,6 +302,7 @@ if (
             // Create the color input row for color settings
             const colorSettings = document.createElement("div");
             colorSettings.style.marginBottom = "20px"; // Space between rows
+            colorSettings.style.float = 'left'
 
             function createColorSetting(labelText, settingName, defaultValue) {
                 const settingDiv = document.createElement("div");
@@ -342,6 +343,7 @@ if (
             colorSettings.appendChild(createColorSetting("Options Background Color:", "optionsBackgroundColor", GM_getValue('optionsBackgroundColor', "white")));
             colorSettings.appendChild(createColorSetting("Input Background Color:", "inputBackgroundColor", GM_getValue('inputBackgroundColor', "white")));
             colorSettings.appendChild(createColorSetting("Close Button Background Color:", "closeButtonBackgroundColor", GM_getValue('closeButtonBackgroundColor', "red")));
+            colorSettings.appendChild(createColorSetting('Settings Button Color:','settingsButtonColor',GM_getValue('settingsButtonColor', "#D8DCDE")))
             colorSettings.appendChild(inputDiv);
             settingsWindow.appendChild(colorSettings);
 
@@ -467,10 +469,10 @@ if (
             sidebar.id = 'sidebar'
             sidebar.textContent = "M A C R O S";
             const smallTextContent = document.createElement('div')
-            smallTextContent.textContent = 'Drag from the green bar to retrieve the macro box, drag it back here to hide it again'
+            smallTextContent.textContent = 'Drag from this bar to retrieve the macro box, drag it back here to hide it again'
             smallTextContent.style.position = 'fixed'
-            smallTextContent.style.top = '560px'
-            smallTextContent.style.fontSize = '10px'
+            smallTextContent.style.top = '558px'
+            smallTextContent.style.fontSize = '11px'
             sidebar.appendChild(smallTextContent)
             //sidebar.style.float = 'left'
             sidebar.style.padding = "2px 10px";
@@ -513,6 +515,7 @@ if (
         settingsButton.style.height = '30px'
         settingsButton.style.width = '60px'
         settingsButton.style.zIndex = "999";
+        settingsButton.style.backgroundColor = settingsButtonColor
         settingsButton.addEventListener("mousedown", (e) => {
             e.stopPropagation(); // Prevent this event from bubbling up to the sidebar
             handleSettingsMenu();
