@@ -1,0 +1,12 @@
+// ==UserScript==
+// @name         Version testing
+// @namespace    http://tampermonkey.net/
+// @version      2025-05-04
+// @description  version control test
+// @author       You
+// @match        http://*/*
+// @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
+// @grant        none
+// ==/UserScript==
+
+console.log('to jest wersja 1.0.0')
