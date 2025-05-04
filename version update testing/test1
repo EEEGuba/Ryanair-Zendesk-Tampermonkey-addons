@@ -4,8 +4,8 @@
 // @version      1.0.1
 // @description  version control test
 // @author       You
-// @updateURL    https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/refs/heads/main/version%20update%20testing/test1
-// @downloadURL  https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/refs/heads/main/version%20update%20testing/test1
+// @updateURL    https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/main/version%20update%20testing/test1
+// @downloadURL  https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/main/version%20update%20testing/test1
 // @match        https://ryanairsupport.zendesk.com//*
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        none
