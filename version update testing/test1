@@ -1,9 +1,11 @@
 // ==UserScript==
 // @name         Version testing
 // @namespace    http://tampermonkey.net/
-// @version      2025-05-04
+// @version      1.0.0
 // @description  version control test
 // @author       You
+// @updateURL    https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/refs/heads/main/version%20update%20testing/test1
+// @downloadURL  https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/refs/heads/main/version%20update%20testing/test1
 // @match        http://*/*
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        none
