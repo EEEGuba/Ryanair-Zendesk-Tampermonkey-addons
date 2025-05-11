@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk custom macros by Grzegorz Ptaszynski merge attempt
 // @namespace    http://tampermonkey.net/
-// @version      2024-12-28
+// @version      Beta-1.0.0
 // @description  macro helper to ease the pasting of templates
 // @author       Grzegorz Ptaszynski
 // @match        https://ryanairsupport.zendesk.com/agent/*
@@ -14,6 +14,8 @@
 // @grant        GM_log
 // @grant        GM_setValue
 // @grant        GM_listValues
+// @updateURL    https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/main/Custom%20synced%20macros/main%20Merged.js
+// @downloadURL  https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/main/Custom%20synced%20macros/main%20Merged.js
 // ==/UserScript==
 if (
     window.location.href ==
@@ -68,9 +70,9 @@ if (
     //the background color of the close button(default is "red")
     const closeButtonBackgroundColor = GM_getValue('closeButtonBackgroundColor', "red")
 
-   //the color of the drag bars present at the sides of the prompt box (default is grey "#D1D1D1")
-   const settingsColor = "#D1D1D1"
-   const settingsButtonColor = GM_getValue('settingsButtonColor', "#D8DCDE")
+    //the color of the drag bars present at the sides of the prompt box (default is grey "#D1D1D1")
+    const settingsColor = "#D1D1D1"
+    const settingsButtonColor = GM_getValue('settingsButtonColor', "#D8DCDE")
     //E N D   O F   C O N F I G
     let isDraggedOut = undefined
     let isDragging = false;
@@ -94,12 +96,12 @@ if (
         contentArray = []
         keywordArray = []
         //WIP
-        if(GM_getValue('recentOpenTime',1)<=Date.now()-60000){
-        GM_openInTab(
-            "https://app.smartsheet.com/sheets/qG3Jjrg3fVPXmRQgP9rHx2X6CjQhWCPCH2XRPQ51?view=grid",
-            { loadInBackground: true, insert: true },
-        )
-            GM_setValue('recentOpenTime',Date.now())
+        if (GM_getValue('recentOpenTime', 1) <= Date.now() - 60000) {
+            GM_openInTab(
+                "https://app.smartsheet.com/sheets/qG3Jjrg3fVPXmRQgP9rHx2X6CjQhWCPCH2XRPQ51?view=grid",
+                { loadInBackground: true, insert: true },
+            )
+            GM_setValue('recentOpenTime', Date.now())
         }
         setTimeout(() => {
             sheetData = GM_getValue("sheetData", undefined)
@@ -297,7 +299,9 @@ if (
             settingsWindow.style.border = "1px solid #ccc";
             settingsWindow.style.position = "relative";
             settingsWindow.style.color = fontColor; // Apply dynamic font color
-
+            const versionTag = document.createElement('p')
+            versionTag.innerText = `this is version ${GM_info.script.version}`
+            settingsWindow.appendChild(versionTag)
 
             // Create the color input row for color settings
             const colorSettings = document.createElement("div");
@@ -343,7 +347,7 @@ if (
             colorSettings.appendChild(createColorSetting("Options Background Color:", "optionsBackgroundColor", GM_getValue('optionsBackgroundColor', "white")));
             colorSettings.appendChild(createColorSetting("Input Background Color:", "inputBackgroundColor", GM_getValue('inputBackgroundColor', "white")));
             colorSettings.appendChild(createColorSetting("Close Button Background Color:", "closeButtonBackgroundColor", GM_getValue('closeButtonBackgroundColor', "red")));
-            colorSettings.appendChild(createColorSetting('Settings Button Color:','settingsButtonColor',GM_getValue('settingsButtonColor', "#D8DCDE")))
+            colorSettings.appendChild(createColorSetting('Settings Button Color:', 'settingsButtonColor', GM_getValue('settingsButtonColor', "#D8DCDE")))
             colorSettings.appendChild(inputDiv);
             settingsWindow.appendChild(colorSettings);
 
@@ -528,7 +532,7 @@ if (
         userButtonsContainer.style.position = 'fixed'
         userButtonsContainer.style.top = '670px'
         userButtonsContainer.style.left = '-1px'
-        userButtonsContainer.style.height = `${window.innerHeight-665}px`
+        userButtonsContainer.style.height = `${window.innerHeight - 665}px`
         userButtonsContainer.style.width = '80px'
         userButtonsContainer.style.overflowY = 'auto'
         userButtonsContainer.style.overflowX = 'hidden'
@@ -554,7 +558,7 @@ if (
                 this.button.style.lineHeight = "1";
                 this.button.style.marginTop = '2px'; // Adds 2px space below each button
                 this.button.style.maxWidth = '60px'
-                this.button.style.width='100%'
+                this.button.style.width = '100%'
                 this.button.style.maxHeight = '160px'
                 this.button.style.minHeight = '40px'
             }
@@ -572,8 +576,8 @@ if (
         //GM_setValue("buttonList", [{ title: "test1", content: "this is test1, you may not like it but I don't either", color: "pink", fontColor: "green" }]);
 
         function createButtons() {
-            for (let i = 1; i <= GM_getValue('buttonAmount',0); i++) {
-                const userBtn = new UserButton(GM_getValue(`button${i}Title`,'input title'), GM_getValue(`button${i}Content`, "placeholder contents"), GM_getValue(`button${i}Color`,'green'), GM_getValue(`button${i}fontColor`,'white'));
+            for (let i = 1; i <= GM_getValue('buttonAmount', 0); i++) {
+                const userBtn = new UserButton(GM_getValue(`button${i}Title`, 'input title'), GM_getValue(`button${i}Content`, "placeholder contents"), GM_getValue(`button${i}Color`, 'green'), GM_getValue(`button${i}fontColor`, 'white'));
                 // Define an arbitrary function to be called when the button is clicked
                 const clickFunction = () => {
                     const originalBackgroundColor = userBtn.button.style.backgroundColor
@@ -587,7 +591,7 @@ if (
                     //userBtn.button.style.backgroundColor = 'black'
                     userBtn.button.style.color = 'white'
                     navigator.clipboard.writeText(userBtn.content)
-                    createMessageBox('Copied button\n' + userBtn.button.textContent.toString() + '\n to clipboard',2000)
+                    createMessageBox('Copied button\n' + userBtn.button.textContent.toString() + '\n to clipboard', 2000)
                 };
 
 
