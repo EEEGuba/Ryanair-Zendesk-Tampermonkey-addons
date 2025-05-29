@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk custom macros by Grzegorz Ptaszynski merge attempt
 // @namespace    http://tampermonkey.net/
-// @version      Beta-1.0.2
+// @version      Beta-1.0.3
 // @description  macro helper to ease the pasting of templates
 // @author       Grzegorz Ptaszynski
 // @match        https://ryanairsupport.zendesk.com/agent/*
@@ -91,6 +91,7 @@ if (
     let lastX, lastY
     let offsetX, offsetY;
     let isMenuOpen = false
+    let customerName = 'Customer'
     function DataInsertStart() {
         titleArray = []
         contentArray = []
@@ -880,7 +881,7 @@ if (
     }
     function refreshBox() {
         setTimeout(() => {
-            if (recentConvoDate == undefined) {
+            if (recentConvoDate == undefined || recentConvoDate == 12345) {
                 document.getElementById("macro-prompt").style.backgroundColor =
                     "#C72222"
             } else {
@@ -895,7 +896,7 @@ if (
     }
     function refreshBoxFallback() {
         setTimeout(() => {
-            if (recentConvoDate == undefined) {
+            if (recentConvoDate == undefined || recentConvoDate == 12345) {
                 document.getElementById("macro-prompt").style.backgroundColor =
                     "#C72222"
             } else {
@@ -941,11 +942,13 @@ if (
                 } else {
                     const date = recentConversationDate()
                     recentConvoDate = date // Set the date
-                    if (recentConvoDate) {
+                //    if (recentConvoDate) {
                         resolve(recentConvoDate) // Resolve with the date
-                    } else {
-                        reject("No recent conversation date found")
-                    }
+                //    } else {
+                //        createMessageBox("NO DATE COULD BE FOUND")
+                //        resolve(12345)
+                //        //reject("No recent conversation date found")
+                //    }
                 }
             }
 
@@ -983,11 +986,21 @@ if (
                 Boolean(targetDiv)
             )
         })
-
+        let nameCheckVariable = 'Customer'
         const dates = articlesWithEndUserType.map((article) => {
+            nameCheckVariable = article.querySelector('[data-garden-id="typography.font"]').innerText
             const timeElement = article.querySelector("time")
             return timeElement ? timeElement.getAttribute("datetime") : null
         })
+        const custNameArray = nameCheckVariable.split(' ')
+        if (custNameArray.length>1){
+        let treatedName = custNameArray[0].toLowerCase()
+            treatedName = String(treatedName[0]).toUpperCase() + String(treatedName).slice(1);
+            //treatedName[0].toUpperCase()
+            customerName = treatedName
+            console.log(customerName)
+        }
+        else{customerName='Customer'}
         if (dates.length === 0) {
             return undefined // Return undef if no date
         }
@@ -1003,22 +1016,23 @@ if (
         await articleGrabber()
 
         // Ensure recentConvoDate is available
+        // Decode URL-encoded characters and replace [RECENTDATE] with the date
+        let decodedString = inputString.replace(/%5cn/g, "\n").replace(/Customer/g,customerName).replace(/%27/,"'")
+
         if (recentConvoDate) {
-            // Decode URL-encoded characters and replace [RECENTDATE] with the date
-            let decodedString = inputString.replace(/%5cn/g, "\n")
-
-            // Replace [RECENTDATE] with the actual date
-            let finalString = decodedString.replace(
-                /\[RECENTDATE\]/g,
-                recentConvoDate,
-            )
-
-            // Return the final string with replacements
+        // Replace [RECENTDATE] with the actual date
+            let finalString = decodedString.replace(/\[RECENTDATE\]/g,recentConvoDate)
             return finalString
-        } else {
-            // Return a message if recentConvoDate is not available yet
-            return "recentConvoDate is not available yet."
+            // Return the final string with replacements
+        } else if(recentConvoDate = 12345){
+            let finalString = decodedString.replace(/\[RECENTDATE\]/g,"XXX")
+            return finalString
         }
+
+        //else {
+        //// Return a message if recentConvoDate is not available yet
+        //    return "recentConvoDate is not available yet."
+        //}
     }
 
     // Example usage: calling the function with a string
@@ -1095,7 +1109,7 @@ if (
                     getResult().then((result) => {
                         recentConvoDate = result
                         //createMessageBox(recentConvoDate, 3000)//todelete
-                        if (recentConvoDate == undefined) {
+                        if (recentConvoDate == undefined || recentConvoDate == 12345) {
                             dateRefresh()
                         }
                         else (calculateRelevance())
