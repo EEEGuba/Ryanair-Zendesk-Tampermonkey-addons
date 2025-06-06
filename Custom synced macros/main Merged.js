@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk custom macros by Grzegorz Ptaszynski merge attempt
 // @namespace    http://tampermonkey.net/
-// @version      Beta-1.0.3
+// @version      Beta-1.0.4
 // @description  macro helper to ease the pasting of templates
 // @author       Grzegorz Ptaszynski
 // @match        https://ryanairsupport.zendesk.com/agent/*
@@ -23,6 +23,8 @@ if (
 ) {
     ; (function () {
         "use strict"
+        //Failsafe
+        setTimeout(()=>{window.close()},600000)
         // Save original open method
         const originalOpen = XMLHttpRequest.prototype.open
         // Override the open method
@@ -998,8 +1000,7 @@ if (
             treatedName = String(treatedName[0]).toUpperCase() + String(treatedName).slice(1);
             //treatedName[0].toUpperCase()
             customerName = treatedName
-            console.log(customerName)
-        }
+            }
         else{customerName='Customer'}
         if (dates.length === 0) {
             return undefined // Return undef if no date
