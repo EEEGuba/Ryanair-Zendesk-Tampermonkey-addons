@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk custom macros by Grzegorz Ptaszynski merge attempt
 // @namespace    http://tampermonkey.net/
-// @version      Beta-1.0.4
+// @version      Beta-1.0.5
 // @description  macro helper to ease the pasting of templates
 // @author       Grzegorz Ptaszynski
 // @match        https://ryanairsupport.zendesk.com/agent/*
@@ -110,7 +110,7 @@ if (
             sheetData = GM_getValue("sheetData", undefined)
             const matches = Array.from(
                 sheetData.matchAll(
-                    /(?<=\')(?!\,)[A-Z, .0-9\\%£$€\[\];:*"@\-+=|\(\)x&~#?!\{\}\`’/]+(?=\')/gi,
+                    /(?<=\')(?!\,)[A-Z, .0-9\\%£$€\[\];:*"@\-+=|_\(\)x&~#?!\{\}\`’/]+(?=\')/gi,
                 ),
             )
             const words = matches.map((match) => match[0])
