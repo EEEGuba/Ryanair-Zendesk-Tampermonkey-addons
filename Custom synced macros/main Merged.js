@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk custom macros by Grzegorz Ptaszynski merge attempt
 // @namespace    http://tampermonkey.net/
-// @version      Beta-1.0.5
+// @version      Beta-1.0.6
 // @description  macro helper to ease the pasting of templates
 // @author       Grzegorz Ptaszynski
 // @match        https://ryanairsupport.zendesk.com/agent/*
@@ -94,11 +94,11 @@ if (
     let offsetX, offsetY;
     let isMenuOpen = false
     let customerName = 'Customer'
+    let test = undefined
     function DataInsertStart() {
         titleArray = []
         contentArray = []
         keywordArray = []
-        //WIP
         if (GM_getValue('recentOpenTime', 1) <= Date.now() - 60000) {
             GM_openInTab(
                 "https://app.smartsheet.com/sheets/qG3Jjrg3fVPXmRQgP9rHx2X6CjQhWCPCH2XRPQ51?view=grid",
@@ -230,7 +230,6 @@ if (
             console.error(error) // Handle any errors (though in this case, it's unlikely)
         }
     }
-    //heavy wip
 
     function handleSettingsMenu() {
         const settingsWindow = document.createElement("div");
@@ -962,7 +961,7 @@ if (
     function recentConversationDate() {
         if (
             document.querySelector('[data-test-id="tooltip-requester-name"]') == null
-        ) {
+        ) { //can probably make it active with no requester by editing this, might crash tho
             return undefined
         }
         const articlesWithEndUserType = Array.from(articles).filter((article) => {
@@ -994,6 +993,17 @@ if (
             const timeElement = article.querySelector("time")
             return timeElement ? timeElement.getAttribute("datetime") : null
         })
+
+
+        ///////// W I P
+       // test = Array.from(document.querySelectorAll('[data-test-id="column-1"]'))
+       // const test2 = test.map((column)=>{return column.parentElement})
+       // test2.forEach(element=>{
+       //    const number = element.getAttribute('data-test-id')
+       //       if(number.match(/\d+/)[0]==currentTicketNr){
+       //       console.log(element.children)
+       //       }})
+        //////// W I P
         const custNameArray = nameCheckVariable.split(' ')
         if (custNameArray.length>1){
         let treatedName = custNameArray[0].toLowerCase()
@@ -1005,12 +1015,31 @@ if (
         if (dates.length === 0) {
             return undefined // Return undef if no date
         }
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         const recentDate = dates[dates.length - 1]
-        const correctTimeFormat = recentDate
-            ? recentDate.slice(0, 10).split("-", 3).reverse().join("/")
-            : undefined
+        const dateArray = recentDate ? recentDate.slice(0, 10).split("-", 3).reverse(): undefined
+        const correctTimeFormat = `${dateArray[0]}${getOrdinal(parseInt(dateArray[0]))} of ${months[parseInt(dateArray[1])-1]}`
+    //OLD FORMAT //recentDate ? recentDate.slice(0, 10).split("-", 3).reverse().join("/"): undefined
         return correctTimeFormat
     }
+    function getOrdinal(n) {
+  let ord = 'th';
+
+  if (n % 10 == 1 && n % 100 != 11)
+  {
+    ord = 'st';
+  }
+  else if (n % 10 == 2 && n % 100 != 12)
+  {
+    ord = 'nd';
+  }
+  else if (n % 10 == 3 && n % 100 != 13)
+  {
+    ord = 'rd';
+  }
+
+  return ord;
+}
     // Function to replace [RECENTDATE] in a string with the actual date
     async function processString(inputString) {
         // Wait for the recentConvoDate to be set
