@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk custom macros by Grzegorz Ptaszynski merge attempt
 // @namespace    http://tampermonkey.net/
-// @version      Beta-1.0.6
+// @version      Beta-1.0.7
 // @description  macro helper to ease the pasting of templates
 // @author       Grzegorz Ptaszynski
 // @match        https://ryanairsupport.zendesk.com/agent/*
@@ -14,8 +14,6 @@
 // @grant        GM_log
 // @grant        GM_setValue
 // @grant        GM_listValues
-// @updateURL    https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/main/Custom%20synced%20macros/main%20Merged.js
-// @downloadURL  https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/main/Custom%20synced%20macros/main%20Merged.js
 // ==/UserScript==
 if (
     window.location.href ==
