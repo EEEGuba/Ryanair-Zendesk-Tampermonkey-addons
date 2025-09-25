@@ -14,8 +14,7 @@
 // @grant        GM_log
 // @grant        GM_setValue
 // @grant        GM_listValues
-// @updateURL    https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/main/Custom%20synced%20macros/main%20Merged.js
-// @downloadURL  https://raw.githubusercontent.com/EEEGuba/Ryanair-Zendesk-Tampermonkey-addons/main/Custom%20synced%20macros/main%20Merged.js
+
 // ==/UserScript==
 if (
     window.location.href ==
